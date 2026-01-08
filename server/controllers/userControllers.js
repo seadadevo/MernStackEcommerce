@@ -1,10 +1,9 @@
-import { User } from "../models/userModel";
-
+import { User } from "../models/userModel.js";
 export const register = async (req, res) => {
     try {
         const {firstName, lastName, email, password} = req.body;
         if(!firstName || !lastName || !email || !password) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: `All fields are required`
             })
@@ -12,17 +11,19 @@ export const register = async (req, res) => {
 
         const user = await User.findOne({email});
         if(user) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: `User already exist`
             })
         }
 
+     
+
         const newUser = await User.create({
             firstName,
             lastName,
             email,
-            password
+            password: hashedPassword
         });
 
         await newUser.save();
