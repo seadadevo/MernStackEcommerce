@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import 'dotenv/config';
 
-export const sendVerifyEmail = async (token, email) => {
+export const sendOtpMail = async (otp, email) => {
   try {
     const transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
@@ -19,15 +19,15 @@ export const sendVerifyEmail = async (token, email) => {
     const info = await transporter.sendMail({
             from: `"ُEcommerce Shop" <${process.env.MAIL_USER}>`,
             to: email,
-            subject: "Email Verification ✔",
-            text: `Hi! There,
-            You have recently visited our website and entered your email.
-            Please follow the given link to verify your email:
-            http://localhost:5173/verify/${token}
-            
-            Thanks!`,
-            html: `<b>Hi! There,</b><br>Please click the link below to verify your email:<br>
-                   <a href="http://localhost:5173/verify/${token}">Verify My Account</a>`
+            subject: "Reset Your Password - OTP",
+            text: `Hi There! Your OTP for password reset is: ${otp}. It will expire in 10 minutes.`,
+            html: `<div style="font-family: Arial, sans-serif; border: 1px solid #ddd; padding: 20px;">
+                    <h2 style="color: #333;">Password Reset Request</h2>
+                    <p>Use the following OTP to reset your password:</p>
+                    <h1 style="color: #007bff; letter-spacing: 5px;">${otp}</h1>
+                    <p>This code is valid for <b>10 minutes</b> only.</p>
+                    <p>If you didn't request this, please ignore this email.</p>
+                </div>`
         });
         console.log("Email captured in Ecommerce! ID:", info.messageId);
         return true;

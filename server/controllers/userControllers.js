@@ -3,6 +3,7 @@ import { User } from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import { Session } from "../models/sessionModel.js";
 import bcrypt from "bcryptjs";
+import { sendOtpMail } from "../utils/sendOtpMail.js";
 
 export const register = async (req, res) => {
     try {
@@ -240,6 +241,136 @@ export const logout = async (req, res) => {
             message: "Logged out successfully"
         });
         
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+
+export const forgetPassword = async (req, res) => {
+    try {
+        const {email} = req.body;
+        const user = await User.findOne({email});
+        if(!user) {
+            return res.status(200).json({
+                success: false,
+                message: "User not found"
+            })
+        } 
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpiry = new Date(Date.now()+10*60*1000); 
+
+        user.otp = otp
+        user.otpExpiry = otpExpiry
+
+        await user.save();
+        await sendOtpMail(otp, email);
+
+        return res.status(200).json({
+            success: true,
+            message: "Otp sent to email successfully"
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+} 
+
+export const verifyOTP = async (req, res) => {
+    try {
+        const { otp, email } = req.body;
+        if (!otp || !email) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and OTP are required"
+            });
+        }
+
+        const user = await User.findOne({email});
+        if(!user) {
+            return res.status(400).json({
+                success: false,
+                message: "User nor found"
+            })
+        }
+        
+        if(!user.otp || !user.otpExpiry) {
+            return res.status(400).json({
+                success: false,
+                message: "Otp is not generated or verified"
+            })
+        }
+        
+        if(user.otpExpiry < new Date() ) {
+            return res.status(400).json({
+                success: false,
+                message: "Otp has expired please request a new one"
+            })
+        }
+        
+        if(otp !== user.otp) {
+            return res.status(400).json({
+                success: false,
+                message: "Otp is invalid"
+            })
+        }
+        user.otp = null;
+        user.otpExpiry = null;
+        await user.save();
+        return res.status(200).json({
+            success: true,
+            message: "Otp veified successfully"
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+} 
+
+export const changePassword = async(req, res) => {
+    try {
+        const {newPassword, confirmPassword, email} = req.body;
+        const user = await User.findOne({email});
+        if(!user) {
+            return res.status(400).json({
+                success: false,
+                message: "User nor found"
+            })
+        }
+        if (!newPassword || !confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Please provide both password fields"
+            });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Passwords don't match" 
+            });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword , salt);
+
+        user.otp = undefined;
+        user.otpExpiry = undefined;
+
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Password changed successfully"
+        });
+
     } catch (error) {
         return res.status(500).json({
             success: false,
