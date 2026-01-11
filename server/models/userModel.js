@@ -50,6 +50,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    isOtpVerified: {
+      type: String,
+      default: null,
+    },
     address: {
       type: String,
     },

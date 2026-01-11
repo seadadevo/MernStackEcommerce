@@ -19,12 +19,18 @@ export const isAuthenticated = async (req, res, next) => {
       if (error.name === "TokenExpiredError") {
         return res.status(400).json({
           success: false,
-          message: "The registration Token has Expired",
+          message:"Session expired, please login again",
+        });
+      }
+      if (error.name === "JsonWebTokenError") {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid token, authorization denied",
         });
       }
       return res.status(400).json({
         success: false,
-        message: "Access Token is missing or invalid",
+        message: "Server Error",
       });
     }
 
@@ -35,6 +41,7 @@ export const isAuthenticated = async (req, res, next) => {
         message: "User not found",
       });
     }
+    req.user = user;
     req.id = user._id;
     next();
   } catch (error) {

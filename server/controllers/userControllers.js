@@ -150,7 +150,7 @@ export const login = async (req, res) => {
     try {
         const {email, password} = req.body;
     
-        const userAgent = req.headers['userAgent'] || 'Unknown Device';
+        const userAgent = req.headers['user-agent'] || 'Unknown Device';
         const ipAddress = req.ip || req.connection.remoteAddress || 'Unknown IP';
 
         if(!email || !password) {
@@ -295,21 +295,14 @@ export const verifyOTP = async (req, res) => {
         if(!user) {
             return res.status(400).json({
                 success: false,
-                message: "User nor found"
+                message: "User not found"
             })
         }
         
-        if(!user.otp || !user.otpExpiry) {
+        if(!user.otp || !user.otpExpiry || user.otpExpiry < new Date()) {
             return res.status(400).json({
                 success: false,
-                message: "Otp is not generated or verified"
-            })
-        }
-        
-        if(user.otpExpiry < new Date() ) {
-            return res.status(400).json({
-                success: false,
-                message: "Otp has expired please request a new one"
+                message: "OTP has expired or wasn't requested"
             })
         }
         
@@ -319,12 +312,14 @@ export const verifyOTP = async (req, res) => {
                 message: "Otp is invalid"
             })
         }
-        user.otp = null;
-        user.otpExpiry = null;
+        user.isOtpVerified = true;
+        user.otp = undefined;
+        user.otpExpiry = undefined;
+
         await user.save();
         return res.status(200).json({
             success: true,
-            message: "Otp veified successfully"
+            message: "Otp veified successfully. Now You can Reset Your Password!"
         })
     } catch (error) {
         return res.status(500).json({
@@ -337,17 +332,11 @@ export const verifyOTP = async (req, res) => {
 export const changePassword = async(req, res) => {
     try {
         const {newPassword, confirmPassword, email} = req.body;
-        const user = await User.findOne({email});
-        if(!user) {
+
+        if (!newPassword || !confirmPassword || !email) {
             return res.status(400).json({
                 success: false,
-                message: "User nor found"
-            })
-        }
-        if (!newPassword || !confirmPassword) {
-            return res.status(400).json({
-                success: false,
-                message: "Please provide both password fields"
+                message: "All Feilds are required"
             });
         }
 
@@ -358,13 +347,19 @@ export const changePassword = async(req, res) => {
             });
         }
 
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(newPassword , salt);
+        const user = await User.findOne({email, isOtpVerified: true});
 
-        user.otp = undefined;
-        user.otpExpiry = undefined;
+        if(!user) {
+            return res.status(400).json({
+                success: false,
+                message: "Unauthorized: Please verify your OTP first"
+            })
+        }
 
+        user.password = newPassword;
+        user.isOtpVerified = undefined;
         await user.save();
+
 
         return res.status(200).json({
             success: true,
@@ -378,3 +373,19 @@ export const changePassword = async(req, res) => {
         })
     }
 }
+
+export const allUsers = async (req, res) => {
+    try {
+        const users = await User.find();
+        return res.status(200).json({
+            success: true,
+            users
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
