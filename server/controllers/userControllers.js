@@ -67,7 +67,7 @@ export const verify = async (req, res) => {
         }
 
         const token = authHeader.split(" ")[1];
-        let decode 
+        let decode; 
         try {
             decode = jwt.verify(token , process.env.JWT_SECRET);
         }
@@ -83,14 +83,13 @@ export const verify = async (req, res) => {
                 message: "Token verification faild"
             })
         }
-        const user = await User.findById(decoded.id);
+        const user = await User.findById(decode.id);
         if(!user) {
             return res.status(400).json({
                 success: false,
                 message: "User nor found"
             })
         }
-        user.token = null
         user.isVerified = true
         await user.save()
         return res.status(200).json({
@@ -104,3 +103,42 @@ export const verify = async (req, res) => {
         })
     }
 }
+
+
+export const reVerfiy = async (req, res) => {
+    try {
+        const {email} = req.body;
+    const user =await User.findOne({email});
+    if(!user){
+        return res.status(400).json({
+            success: false,
+            message: "User not found"
+        })
+    }
+
+    if(user.isVerified) {
+        return res.status(400).json({
+            success: false,
+            message: "This account is already verified"
+        })
+    }
+
+    const token = jwt.sign(
+            {id: user._id},
+            process.env.JWT_SECRET,
+            {expiresIn: process.env.JWT_EXPIRES_IN}
+        )
+    await sendVerifyEmail(token, email);
+        return res.status(200).json({
+            success: true,
+            message: "Verification email send Succssfully",
+            token
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
