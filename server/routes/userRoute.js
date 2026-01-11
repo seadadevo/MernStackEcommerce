@@ -7,7 +7,8 @@ import { register,
         logout,
         forgetPassword,
         verifyOTP,
-        changePassword, 
+        changePassword,
+        getUserById, 
         } from '../controllers/userControllers.js';
 import { isAuthenticated } from '../middleware/isAuthenticated.js';
 import { restrictTo } from '../middleware/roleMiddleware.js';
@@ -23,5 +24,6 @@ router.post('/forget-password',  forgetPassword)
 router.post('/verify-otp', verifyOTP)
 router.post('/change-password',  changePassword)
 router.get('/all-users', isAuthenticated , restrictTo('admin') , allUsers);
+router.get('/get-user/:userId', getUserById);
 
 export default router;
