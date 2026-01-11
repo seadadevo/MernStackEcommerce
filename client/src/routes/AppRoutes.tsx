@@ -1,0 +1,25 @@
+import MainLayout from '@/layouts/MainLayout'
+import Login from '@/pages/Login'
+import SignUp from '@/pages/SignUp'
+import { Home } from 'lucide-react'
+import { Route, Routes } from 'react-router-dom'
+import AuthLayout from '../layouts/AuthLayout'
+
+const AppRoutes = () => {
+  return (
+    <Routes>
+        <Route element={<MainLayout/>}>
+            <Route path='/' element={<Home/>}/>
+        </Route>
+        <Route element={<AuthLayout/>}>
+            <Route path='/sign-up' element={<SignUp/>}/>
+            <Route path='/login' element={<Login/>}/>
+        </Route>
+
+        <Route path="*" element={<h1>Not Found</h1>}/>
+    </Routes>
+
+  )
+}
+
+export default AppRoutes
