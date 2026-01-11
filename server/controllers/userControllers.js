@@ -1,6 +1,8 @@
 import { sendVerifyEmail } from "../utils/verifyEmail.js";
 import { User } from "../models/userModel.js";
 import jwt from "jsonwebtoken";
+import { Session } from "../models/sessionModel.js";
+import bcrypt from "bcryptjs";
 
 export const register = async (req, res) => {
     try {
@@ -142,3 +144,100 @@ export const reVerfiy = async (req, res) => {
     }
 }
 
+
+export const login = async (req, res) => {
+    try {
+        const {email, password} = req.body;
+    
+        const userAgent = req.headers['userAgent'] || 'Unknown Device';
+        const ipAddress = req.ip || req.connection.remoteAddress || 'Unknown IP';
+
+        if(!email || !password) {
+            return res.status(400).json({
+            success: false,
+            message: "All fields are required!"
+        })
+    }
+    
+    const existingUser = await User.findOne({email}).select("+password");
+    if(!existingUser) {
+        return res.status(400).json({
+        success: false,
+        message: "User not exist"
+    })
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, existingUser.password) 
+    if(!isPasswordValid) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid Credentials"
+        })
+    }
+    
+    if(existingUser.isVerified === false){
+        return res.status(400).json({
+            success: false,
+            message: "Verify Your account then Login"
+        })
+    }
+
+    const accessToken = jwt.sign(
+            {id: existingUser._id},
+            process.env.JWT_SECRET,
+            {expiresIn: process.env.JWT_EXPIRES_IN || '15m'}
+        );
+        
+    const refreshToken = jwt.sign(
+            {id: existingUser._id},
+            process.env.JWT_SECRET,
+            {expiresIn: '30d'}
+        );
+
+    existingUser.isLoggedIn = true;
+    await existingUser.save();
+    
+    const existingSession = await Session.findOne({userId: existingUser._id})
+    if(existingSession) {
+        await Session.deleteOne({userId: existingUser._id}) 
+    }    
+
+    
+    await Session.create(
+        {
+            userId: existingUser._id,
+            userAgent,
+            ipAddress
+        },
+    )    
+
+    const userReponse = existingUser.toObject();
+    delete userReponse.password; 
+
+    return res.status(200).json({
+        success: true,
+        message: `Welcome back ${existingUser.firstName}`,
+        user: existingUser,
+        accessToken,
+        refreshToken
+    })
+    
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+// export const logout = async (req, res) => {
+//     try {   
+//         const userId = req.id;
+
+//     } catch (error) {
+//         return res.status(500).json({
+//             success: false,
+//             message: error.message
+//         })
+//     }
+// }
