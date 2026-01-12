@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge"; // لو مش عندك سيبها span
+import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
