@@ -1,5 +1,5 @@
 import { Truck, ShieldCheck, Headphones } from 'lucide-react';
-
+import { Facebook, Instagram, Twitter } from 'lucide-react'
 
 export const SIGNUP_FIELDS = [
   {
@@ -40,3 +40,18 @@ export const features = [
       bgColor: "bg-purple-100",
     }
   ];
+
+
+export const CUSTOMER_LINKS = [
+  { label: "Contact Us", href: "/contact" },
+  { label: "Shipping & Returns", href: "/shipping" },
+  { label: "FAQs", href: "/faqs" },
+  { label: "Order Tracking", href: "/tracking" },
+  { label: "Size Guide", href: "/size-guide" },
+];
+
+export const SOCIAL_LINKS = [
+  { icon: <Facebook size={18} />, href: "https://facebook.com" },
+  { icon: <Instagram size={18} />, href: "https://instagram.com" },
+  { icon: <Twitter size={18} />, href: "https://twitter.com" },
+];
