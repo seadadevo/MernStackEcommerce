@@ -43,11 +43,7 @@ const SignUp = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await api.post('/user/register', formData, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const res = await api.post('/user/register', formData);
       if(res.data.success){
         toast.success(res.data.message);
         navigate("/verify");

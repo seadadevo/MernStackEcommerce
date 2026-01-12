@@ -16,6 +16,8 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState,  type ChangeEvent, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/userSlice";
 
 const Login = () => {
 
@@ -27,7 +29,7 @@ const Login = () => {
   });
 
   const navigate = useNavigate()
-
+  const dispatch = useDispatch()
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const {name, value} = e.target;
     setFormData((prev) => {
@@ -42,13 +44,10 @@ const Login = () => {
     e.preventDefault()
     try {
       setLoading(true);
-      const res = await api.post('/user/login', formData, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      })
+      const res = await api.post('/user/login', formData)
       if(res.data.success){
         toast.success(res.data.message);
+        dispatch(setUser(res.data.user))
         navigate("/");
       }
     } catch (error) {
