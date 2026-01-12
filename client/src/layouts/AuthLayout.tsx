@@ -6,7 +6,7 @@ const AuthLayout = () => {
   return (
     <>
         <NavBar/>
-        <main className='container mx-auto px-4  bg-pink-200'>
+        <main className=' px-4  bg-pink-200'>
             <Outlet/>
         </main>
     </>
