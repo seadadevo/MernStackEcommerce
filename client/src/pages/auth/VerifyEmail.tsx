@@ -6,16 +6,14 @@ const VerifyEmail = () => {
   const { token } = useParams();
   const [status, setStatus] = useState("Verifying...");
   const navigate = useNavigate();
-  
-  // الحارس: هيبدأ بـ false
+
   const isCalled = useRef(false);
 
   useEffect(() => {
     const verifyEmail = async () => {
-      // لو الحارس قيمته true، اخرج وماتكملش
+    
       if (isCalled.current) return;
       
-      // غير قيمة الحارس لـ true فوراً
       isCalled.current = true;
 
       try {
