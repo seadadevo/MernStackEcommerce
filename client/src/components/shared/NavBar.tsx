@@ -1,7 +1,7 @@
-import { ShoppingBag, ShoppingCart } from 'lucide-react';
+import {  ShoppingCart } from 'lucide-react';
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
 const NavBar = () => {
   const user = true;

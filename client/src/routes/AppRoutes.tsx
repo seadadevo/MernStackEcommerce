@@ -1,11 +1,11 @@
 import MainLayout from '@/layouts/MainLayout'
 import Login from '@/pages/auth/Login'
 import SignUp from '@/pages/auth/SignUp'
-import { Home } from 'lucide-react'
 import { Route, Routes } from 'react-router-dom'
 import AuthLayout from '../layouts/AuthLayout'
 import Verify from '@/pages/auth/Verify'
 import VerifyEmail from '@/pages/auth/VerifyEmail'
+import Home from '@/pages/Home/Home'
 
 const AppRoutes = () => {
   return (
