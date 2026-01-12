@@ -4,6 +4,7 @@ import SignUp from '@/pages/SignUp'
 import { Home } from 'lucide-react'
 import { Route, Routes } from 'react-router-dom'
 import AuthLayout from '../layouts/AuthLayout'
+import Verify from '@/pages/Verify'
 
 const AppRoutes = () => {
   return (
@@ -13,6 +14,7 @@ const AppRoutes = () => {
         </Route>
         <Route element={<AuthLayout/>}>
             <Route path='/sign-up' element={<SignUp/>}/>
+            <Route path='/verify' element={<Verify/>}/>
             <Route path='/login' element={<Login/>}/>
         </Route>
 
