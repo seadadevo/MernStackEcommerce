@@ -1,8 +1,14 @@
 import nodemailer from 'nodemailer';
-import 'dotenv/config';
 
 export const sendVerifyEmail = async (token, email) => {
   try {
+    console.log("=== Sending Verification Email ===");
+    console.log("To:", email);
+    console.log("MAIL_HOST:", process.env.MAIL_HOST);
+    console.log("MAIL_PORT:", process.env.MAIL_PORT);
+    console.log("MAIL_USER:", process.env.MAIL_USER ? "SET" : "NOT SET");
+    console.log("MAIL_PASS:", process.env.MAIL_PASS ? "SET" : "NOT SET");
+    
     const transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
         port: parseInt(process.env.MAIL_PORT), 

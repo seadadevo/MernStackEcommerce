@@ -16,7 +16,7 @@ import { restrictTo } from '../middleware/roleMiddleware.js';
 const router = express.Router();
 
 router.post('/register', register)
-router.post('/verify', verify)
+router.post('/verify/:token', verify)
 router.post('/reverify', reVerfiy)
 router.post('/login', login)
 router.post('/logout', isAuthenticated , logout)

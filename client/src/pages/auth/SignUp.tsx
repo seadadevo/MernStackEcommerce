@@ -133,7 +133,7 @@ const SignUp = () => {
         </CardContent>
         <CardFooter className="flex-col gap-2">
           <Button onClick={submitHandler} type="submit" className="w-full bg-pink-600 hover:bg-pink-600/90" disabled={loading}>
-            {loading ? <><Loader2/></> : 'Sign Up' }
+            {loading ? <><Loader2 className="animate-spin"/></> : 'Sign Up' }
           </Button>
           <p className="text-left text-sm w-full mt-[-5px] text-gray-700 ">
             already have an account?

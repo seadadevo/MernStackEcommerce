@@ -1,5 +1,4 @@
 import nodemailer from 'nodemailer';
-import 'dotenv/config';
 
 export const sendOtpMail = async (otp, email) => {
   try {
