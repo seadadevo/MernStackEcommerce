@@ -6,12 +6,14 @@ import AuthLayout from '../layouts/AuthLayout'
 import Verify from '@/pages/auth/Verify'
 import VerifyEmail from '@/pages/auth/VerifyEmail'
 import Home from '@/pages/Home/Home'
+import Profile from '@/pages/Home/Profile'
 
 const AppRoutes = () => {
   return (
     <Routes>
         <Route element={<MainLayout/>}>
             <Route path='/' element={<Home/>}/>
+            <Route path='/profile' element={<Profile/>}/>
         </Route>
         <Route element={<AuthLayout/>}>
             <Route path='/sign-up' element={<SignUp/>}/>

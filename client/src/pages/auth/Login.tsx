@@ -46,9 +46,10 @@ const Login = () => {
       setLoading(true);
       const res = await api.post('/user/login', formData)
       if(res.data.success){
-        toast.success(res.data.message);
-        dispatch(setUser(res.data.user))
         navigate("/");
+        dispatch(setUser(res.data.user));
+        localStorage.setItem('accessToken' , res.data.accessToken)
+        toast.success(res.data.message);
       }
     } catch (error) {
       console.error("Error during Login:", error); 

@@ -1,31 +1,35 @@
 import { Badge, ShoppingCart } from "lucide-react";
-import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import api from "@/api/axios";
 import { toast } from "sonner";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "@/redux/userSlice";
+import { ModeToggle } from "../Mode-toggle";
 
 const NavBar = () => {
-  const { user } = useSelector((state: any) => state.user);
-
   const accessToken = localStorage.getItem("accessToken");
-  const logoutHeader = async () => {
-    try {
-      const res = await api.post(
-        `/user/logout`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-      if (res.data.sucess) {
-        toast.success(res.data.message);
-      }
-    } catch (error) {}
-  };
+  const { user } = useSelector((state: any) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+  try {
+    const res = await api.post(`/user/logout`, {}, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+
+    if (res.data.success) { 
+      dispatch(setUser(null)); 
+      localStorage.removeItem("accessToken"); 
+      toast.success(res.data.message);
+    }
+  } catch (error) {
+    console.error(error);
+    dispatch(setUser(null));
+    localStorage.removeItem("accessToken");
+  }
+};
   return (
     <header className="w-full bg-pink-50 fixed z-20 border-b border-pink-200 ">
       <div className="max-w-7xl mx-auto flex justify-between items-center py-3">
@@ -72,12 +76,13 @@ const NavBar = () => {
             </span>
           </Link>
           {user ? (
-            <Button className="bg-gradient-to-tl from-blue-600 to-purple-600">
+            <Button onClick={handleLogout} className="bg-gradient-to-tl from-blue-600 to-purple-600">
               Logout
             </Button>
           ) : (
-            <Button className="bg-pink-600 hover:bg-pink-400">Login</Button>
+            <Button  onClick={() => navigate('/login')} className="bg-pink-600 hover:bg-pink-400">Login</Button>
           )}
+         
         </nav>
       </div>
     </header>
