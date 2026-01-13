@@ -2,7 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 const Profile = () => {
   return (
     <div className="min-h-screen py-20 bg-gray-200">
@@ -152,44 +159,62 @@ const Profile = () => {
               Order History
             </h1>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-gray-100 text-gray-500 uppercase text-xs tracking-wider">
-                    <th className="pb-4 font-semibold">Order ID</th>
-                    <th className="pb-4 font-semibold">Date</th>
-                    <th className="pb-4 font-semibold">Status</th>
-                    <th className="pb-4 font-semibold text-right">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="text-gray-700">
-                  <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                    <td className="py-5 font-medium text-blue-600">
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50/50">
+                    <TableHead className="w-[150px] font-semibold uppercase text-xs tracking-wider text-gray-500">
+                      Order ID
+                    </TableHead>
+                    <TableHead className="font-semibold uppercase text-xs tracking-wider text-gray-500">
+                      Date
+                    </TableHead>
+                    <TableHead className="font-semibold uppercase text-xs tracking-wider text-gray-500">
+                      Status
+                    </TableHead>
+                    <TableHead className="text-right font-semibold uppercase text-xs tracking-wider text-gray-500">
+                      Total
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {/* Row 1 */}
+                  <TableRow className="hover:bg-gray-50 transition-colors">
+                    <TableCell className="py-4 font-medium text-blue-600">
                       #ORD-7721
-                    </td>
-                    <td className="py-5 text-sm text-gray-500">Jan 12, 2026</td>
-                    <td className="py-5">
-                      <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-green-100 text-green-700">
+                    </TableCell>
+                    <TableCell className="py-4 text-sm text-gray-500">
+                      Jan 12, 2026
+                    </TableCell>
+                    <TableCell className="py-4">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-green-100 text-green-700">
                         Delivered
                       </span>
-                    </td>
-                    <td className="py-5 text-right font-bold">$129.00</td>
-                  </tr>
+                    </TableCell>
+                    <TableCell className="py-4 text-right font-bold text-gray-900">
+                      $129.00
+                    </TableCell>
+                  </TableRow>
 
-                  <tr className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                    <td className="py-5 font-medium text-blue-600">
+                  {/* Row 2 */}
+                  <TableRow className="hover:bg-gray-50 transition-colors">
+                    <TableCell className="py-4 font-medium text-blue-600">
                       #ORD-8812
-                    </td>
-                    <td className="py-5 text-sm text-gray-500">Jan 05, 2026</td>
-                    <td className="py-5">
-                      <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-700">
+                    </TableCell>
+                    <TableCell className="py-4 text-sm text-gray-500">
+                      Jan 05, 2026
+                    </TableCell>
+                    <TableCell className="py-4">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-700">
                         Processing
                       </span>
-                    </td>
-                    <td className="py-5 text-right font-bold">$45.50</td>
-                  </tr>
-                </tbody>
-              </table>
+                    </TableCell>
+                    <TableCell className="py-4 text-right font-bold text-gray-900">
+                      $45.50
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
           </div>
         </TabsContent>

@@ -8,10 +8,12 @@ import { register,
         forgetPassword,
         verifyOTP,
         changePassword,
-        getUserById, 
+        getUserById,
+        updateUser, 
         } from '../controllers/userControllers.js';
 import { isAuthenticated } from '../middleware/isAuthenticated.js';
 import { restrictTo } from '../middleware/roleMiddleware.js';
+import { singleUpload } from '../middleware/multer.js';
 
 const router = express.Router();
 
@@ -25,5 +27,6 @@ router.post('/verify-otp', verifyOTP)
 router.post('/change-password',  changePassword)
 router.get('/all-users', isAuthenticated , restrictTo('admin') , allUsers);
 router.get('/get-user/:userId', getUserById);
+router.get('/update/:userId', isAuthenticated , singleUpload , updateUser);
 
 export default router;
