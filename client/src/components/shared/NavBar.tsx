@@ -31,12 +31,12 @@ const NavBar = () => {
   }
 };
   return (
-    <header className="w-full bg-pink-50 fixed z-20 border-b border-pink-200 ">
+    <header className="w-full bg-pink-50/70 backdrop-blur-md fixed z-20 border-b border-pink-200 ">
       <div className="max-w-7xl mx-auto flex justify-between items-center py-3">
         {/* logo */}
         <div className="">
           <Link to={"/"} className="flex gap-3 items-center">
-            <img className="w-[30px]" src="./logooo.png" alt="imageLogo" />
+            <img className="w-[30px]" src="/logooo.png" alt="imageLogo" />
             <p className="">Hamada</p>
           </Link>
         </div>
@@ -51,7 +51,7 @@ const NavBar = () => {
             </Link>
             {user && (
               <Link
-                to="/profile"
+                to={`/profile/${user._id}`}
                 className="flex items-center gap-3 group px-3 py-1.5 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
               >
                 <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-sm group-hover:scale-105 transition-transform">

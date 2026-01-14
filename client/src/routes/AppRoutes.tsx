@@ -13,7 +13,7 @@ const AppRoutes = () => {
     <Routes>
         <Route element={<MainLayout/>}>
             <Route path='/' element={<Home/>}/>
-            <Route path='/profile' element={<Profile/>}/>
+            <Route path='/profile/:userId' element={<Profile/>}/>
         </Route>
         <Route element={<AuthLayout/>}>
             <Route path='/sign-up' element={<SignUp/>}/>

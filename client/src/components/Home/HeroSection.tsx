@@ -4,18 +4,21 @@ import { ShoppingBag, ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
   return (
-    <section className="relative w-full py-20 lg:py-32 bg-gradient-to-br from-blue-700 via-purple-700 to-indigo-800 text-white overflow-hidden">
+    <section className="hero-selection relative w-full py-20 lg:py-32 bg-gradient-to-br from-blue-700 via-purple-700 to-indigo-800 text-white overflow-hidden">
     
+    <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-pink-500/20 rounded-full blur-[120px] z-0 animate-pulse" />
+  
+  <div className="absolute  bottom-[-10%] left-[20%] w-[300px] h-[300px] bg-blue-400/20 rounded-full blur-[100px] z-0" />
 
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* left side */}
           <div className="flex flex-col items-start space-y-6">
-            <Badge className="bg-white/20 text-white hover:bg-white/30 border-none px-4 py-1 text-sm backdrop-blur-md">
-              New Season Arrival 🔥
+            <Badge className="bg-white/20  text-white hover:bg-white/30 border-none px-4 py-1 text-sm backdrop-blur-md">
+              New Season Arrival <p className="animate-pulse">🔥</p>
             </Badge>
 
-            <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1]">
+            <h1 className="text-balance text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1]">
               Latest{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-pink-200">
                 Electronics

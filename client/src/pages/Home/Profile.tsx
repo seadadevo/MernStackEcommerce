@@ -10,11 +10,96 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useState, type ChangeEvent } from "react";
+import api from "@/api/axios";
+import { toast } from "sonner";
+import { setUser } from "@/redux/userSlice";
+import { Loader2 } from "lucide-react";
 const Profile = () => {
+  const [loading, setLoading] = useState(false);
+  const { user } = useSelector((state: any) => state.user);
+  const params = useParams();
+  const userId = params.userId;
+  const dispatch = useDispatch()
+
+  const [updatedUser, setUpdatedUser] = useState({
+        firstName: user?.firstName || "", 
+        lastName: user?.lastName || "",
+        email: user?.email || "",
+        phoneNumber: user?.phoneNumber || "",
+        city: user?.city || "",
+        address: user?.address || "",
+        zipCode: user?.zipCode || "",
+        profilePic: user?.profilePic || "",
+    });
+
+    const [file, setFile] = useState(null);
+
+    const handleChange = (e) => {
+      const {name, value} = e.target;
+      
+      setUpdatedUser((prev) => {
+        return {
+          ...prev,
+          [name]: value
+        }
+      })
+    }
+
+    const handleFileChange = (e) => {
+      const selectedFile = e.target.files[0];
+      if(selectedFile) {
+        setFile(selectedFile)
+      }
+     setUpdatedUser({...updatedUser, profilePic:URL.createObjectURL(selectedFile)})
+    }
+
+    const handleSubmit =async (e) => {
+      e.preventDefault();
+      try {
+        setLoading(true)
+        const token = localStorage.getItem("accessToken");
+        const formData = new FormData();
+        formData.append("firstName", updatedUser.firstName || "");
+        formData.append("lastName", updatedUser.lastName || "");
+        formData.append("email", updatedUser.email || "");
+        formData.append("phoneNumber", updatedUser.phoneNumber || "");
+        formData.append("address", updatedUser.address || "");
+        formData.append("zipCode", updatedUser.zipCode || "");
+        formData.append("city", updatedUser.city || "");
+
+        if(file) {
+          formData.append("file", file)
+        }
+
+        const res = await api.put(`user/update/${userId}` , formData, {
+          headers: {
+            'Authorization' : `Bearer ${token}`
+          }
+        });
+        if(res.data.success){
+          console.log(res.data.user)
+          dispatch(setUser(res.data.user))
+          toast.success("Profile updated successfully!");
+        }
+        
+      } catch (error) {
+        console.error("Error during Update profile:", error); 
+      } finally {
+        setLoading(false)
+      }
+    }
+
   return (
-    <div className="min-h-screen py-20 bg-gray-200">
-      <Tabs defaultValue="profile" className="max-w-7xl mx-auto items-center">
-        <TabsList className="flex justify-center bg-transparent gap-4 mb-8">
+    <div className="min-h-screen py-20 bg-gray-200 relative overflow-hidden">
+  
+      <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-pink-500/20 rounded-full blur-[120px] pointer-events-none z-0 animate-pulse" />
+      <div className="absolute bottom-[-10%] left-[20%] w-[300px] h-[300px] bg-blue-400/20 rounded-full blur-[100px] pointer-events-none z-0" />
+
+      <Tabs defaultValue="profile" className="max-w-7xl mx-auto items-center relative z-10">
+        <TabsList className="flex justify-center bg-transparent gap-4 mb-8 bg-slate-50/70 backdrop-blur-md">
           <TabsTrigger
             value="profile"
             className="px-8 py-2 rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md transition-all"
@@ -39,25 +124,33 @@ const Profile = () => {
               <div className="flex flex-col items-center space-y-4 min-w-[200px]">
                 <div className="relative group">
                   <img
-                    className="object-cover object-top shadow-2xl rounded-full w-[160px] h-[160px] ring-4 ring-pink-400 ring-offset-4 transition-transform duration-300 group-hover:scale-105"
-                    src="./profileImage.jpg"
+                    className="object-cover object-center  shadow-2xl rounded-full w-[160px] h-[160px] ring-4 ring-pink-400 ring-offset-4 transition-transform duration-300 group-hover:scale-105"
+                    src= {updatedUser?.profilePic || '/peronalIage.jpg'}
                     alt="imageProfile"
                   />
                 </div>
                 <Button
                   variant="outline"
                   className="text-pink-600 border-pink-200 hover:bg-pink-50"
+                  onClick={() => document.getElementById('fileInput')?.click()}
                 >
                   Change Photo
                 </Button>
+                <input
+                  id="fileInput"
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileChange} 
+                />
               </div>
 
-              <form className="flex-1 space-y-6 w-full">
+              <form onSubmit={handleSubmit} className="flex-1 space-y-6 w-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                  <div className="space-y-2 group focus-within:text-red-600 transition-colors duration-300">
                     <Label
                       htmlFor="firstName"
-                      className="text-gray-600 font-semibold"
+                      className="text-gray-600 font-semibold group-focus-within:text-pink-500 transition-colors"
                     >
                       First Name
                     </Label>
@@ -66,6 +159,9 @@ const Profile = () => {
                       type="text"
                       placeholder="John"
                       className="focus-visible:ring-pink-400"
+                      name="firstName"
+                      value={updatedUser?.firstName}
+                      onChange={handleChange}
                     />
                   </div>
                   <div className="space-y-2">
@@ -80,6 +176,9 @@ const Profile = () => {
                       type="text"
                       placeholder="Doe"
                       className="focus-visible:ring-pink-400"
+                      name="lastName"
+                      value={updatedUser?.lastName}
+                      onChange={handleChange}
                     />
                   </div>
                 </div>
@@ -96,6 +195,27 @@ const Profile = () => {
                     type="email"
                     placeholder="example@mail.com"
                     className="focus-visible:ring-pink-400"
+                    name="email"
+                    value={updatedUser?.email}
+                      onChange={handleChange}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="phoneNumber"
+                    className="text-gray-600 font-semibold"
+                  >
+                    phone 
+                  </Label>
+                  <Input
+                    id="phoneNumber"
+                    type="number"
+                    placeholder="01148982945"
+                    className="focus-visible:ring-pink-400"
+                    name="phoneNumber"
+                    value={updatedUser?.phoneNumber}
+                      onChange={handleChange}
                   />
                 </div>
 
@@ -111,10 +231,13 @@ const Profile = () => {
                     type="text"
                     placeholder="123 Street Name"
                     className="focus-visible:ring-pink-400"
+                    name="address"
+                    value={updatedUser?.address}
+                      onChange={handleChange}
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-[repeat(auto-fit, minmax(250px, 1fr))] gap-4">
                   <div className="space-y-2">
                     <Label
                       htmlFor="city"
@@ -127,6 +250,9 @@ const Profile = () => {
                       type="text"
                       placeholder="Cairo"
                       className="focus-visible:ring-pink-400"
+                      name="city"
+                      value={updatedUser?.city}
+                      onChange={handleChange}
                     />
                   </div>
                   <div className="space-y-2">
@@ -140,13 +266,16 @@ const Profile = () => {
                       id="zipCode"
                       type="text"
                       placeholder="11511"
+                      name="zipCode"
                       className="focus-visible:ring-pink-400"
+                      value={updatedUser?.zipCode}
+                      onChange={handleChange}
                     />
                   </div>
                 </div>
 
                 <Button className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-6 rounded-xl transition-all shadow-lg shadow-pink-200">
-                  Update Profile
+                  {loading ? <p className="flex gap-2 items-center">Loading...<Loader2 className="animate-spin"/></p>: "Update Profile"}
                 </Button>
               </form>
             </div>

@@ -121,3 +121,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+.hero-selection::selection {
+  background-color: #60a5fa; 
+  color: #1e3a8a;
+}

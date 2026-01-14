@@ -27,6 +27,6 @@ router.post('/verify-otp', verifyOTP)
 router.post('/change-password',  changePassword)
 router.get('/all-users', isAuthenticated , restrictTo('admin') , allUsers);
 router.get('/get-user/:userId', getUserById);
-router.get('/update/:userId', isAuthenticated , singleUpload , updateUser);
+router.put('/update/:userId', isAuthenticated , singleUpload , updateUser);
 
 export default router;

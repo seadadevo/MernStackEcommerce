@@ -4,7 +4,8 @@ import jwt from "jsonwebtoken";
 import { Session } from "../models/sessionModel.js";
 import bcrypt from "bcryptjs";
 import { sendOtpMail } from "../utils/sendOtpMail.js";
-import cloudinary from "../utils/cloundinary.js";
+import cloudinary from "../config/cloundinary.js";
+import { uploadStream } from "../utils/cloudinaryHelper.js";
 
 export const register = async (req, res) => {
     try {
@@ -416,7 +417,7 @@ export const getUserById = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     try {
-        const userIdToUpdate = req.params.id;
+        const userIdToUpdate = req.params.userId;
         const loggedInUser = req.user;
         const { firstName, lastName, role, address, city, zipCode, phoneNumber } = req.body;
 
@@ -440,29 +441,20 @@ export const updateUser = async (req, res) => {
             await cloudinary.uploader.destroy(profilePicPublicId);
          }
 
-         const uploadResult = await new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-                { folder: 'profiles' },
-                (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                 }
-            );
-            stream.end(req.file.buffer);
-     });
-
+         const uploadResult = await uploadStream(req.file.buffer, 'profiles');
+         
         profilePicUrl = uploadResult.secure_url;
         profilePicPublicId = uploadResult.public_id;
     }
         
 
-        user.firstName = firstName || user.firstName;
-        user.lastName = lastName || user.lastName;
-        user.address = address || user.address;
-        user.city = city || user.city;
-        user.zipCode = zipCode || user.zipCode;
-        user.phoneNumber = phoneNumber || user.phoneNumber;
-        user.role = role || user.role;
+        if (firstName !== undefined) user.firstName = firstName;
+        if (lastName !== undefined) user.lastName = lastName;
+        if (address !== undefined) user.address = address;
+        if (city !== undefined) user.city = city;
+        if (zipCode !== undefined) user.zipCode = zipCode;
+        if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
+        
         user.profilePic = profilePicUrl; 
         user.profilePicPublicId = profilePicPublicId;
 
