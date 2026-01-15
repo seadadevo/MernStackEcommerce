@@ -1,4 +1,4 @@
-import cloudinary from "../config/cloundinary";
+import cloudinary from "../config/cloundinary.js";
 
 
 export const uploadStream = (fileBuffer, folderName) => {
