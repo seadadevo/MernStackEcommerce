@@ -31,7 +31,7 @@ export const addProduct = async (req , res ) => {
             productPrice,
             category,
             brand,
-            productImgData
+            productImag: productImgData
         });
     
         return res.status(200).json({
