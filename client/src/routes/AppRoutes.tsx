@@ -7,6 +7,8 @@ import Verify from '@/pages/auth/Verify'
 import VerifyEmail from '@/pages/auth/VerifyEmail'
 import Home from '@/pages/Home/Home'
 import Profile from '@/pages/Home/Profile'
+import Products from '@/pages/Products/Products'
+import ProductsLayout from '@/layouts/ProductsLayout'
 
 const AppRoutes = () => {
   return (
@@ -14,6 +16,9 @@ const AppRoutes = () => {
         <Route element={<MainLayout/>}>
             <Route path='/' element={<Home/>}/>
             <Route path='/profile/:userId' element={<Profile/>}/>
+        </Route>
+        <Route element={<ProductsLayout/>}>
+            <Route path='/products' element={<Products/>}/>
         </Route>
         <Route element={<AuthLayout/>}>
             <Route path='/sign-up' element={<SignUp/>}/>

@@ -9,6 +9,7 @@ import {
   updateProduct,
 } from "../controllers/ProductControllers.js";
 import { multipleUpload } from "../middleware/multer.js";
+import { updateProductValidator, validateProduct } from "../validations/validateProduct.js";
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.post(
   isAuthenticated,
   restrictTo("admin"),
   multipleUpload,
+  validateProduct,
   addProduct
 );
 
@@ -33,6 +35,7 @@ router.put(
   isAuthenticated,
   restrictTo("admin"),
   multipleUpload,
+  updateProductValidator,
   updateProduct
 );
 router.get(
