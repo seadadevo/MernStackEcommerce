@@ -12,14 +12,16 @@ import { toast } from "sonner";
 import api from "@/api/axios";
 import {  useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {  setProducts, setSearchKeyword } from "@/redux/productSlice";
+import {  setProductCount, setProducts, setSearchKeyword } from "@/redux/productSlice";
 import { Input } from "@/components/ui/input";
 import qs from "qs";
+import Pagination from "./Pagination";
 
 
 const Products = () => {
-  const {products, selectedCategory, searchKeyword ,selectedBrand, priceRange } = useSelector((state:any) => state.products)
+  const {products, selectedCategory,productsCount ,searchKeyword ,selectedBrand, priceRange } = useSelector((state:any) => state.products)
   const [localSearch, setLocalSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [sort, setSort] = useState("")
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch()
@@ -36,17 +38,20 @@ const Products = () => {
         params.append("brand", selectedBrand);
       }
       if(sort) params.append("sort", sort)
-      // Only apply price filter if it's been modified from default
+        // Only apply price filter if it's been modified from default
       if (priceRange && (priceRange[0] > 0 || priceRange[1] < 100000)) {
         params.append("productPrice[gte]", priceRange[0].toString());
         params.append("productPrice[lte]", priceRange[1].toString());
       }
-
+      params.append("page", currentPage.toString());
+      params.append("limit", "1");
 
       const res = await api.get(`/product/all?${params.toString()}`);
       if (res.data.success) {
         const fetchedProducts = res.data.products;
         dispatch(setProducts(fetchedProducts));
+        dispatch(setProductCount(res.data.totalProductsCount))
+        console.log(res.data.totalProductsCount)
       }
     } catch (error: any) {
       console.error(error);
@@ -62,7 +67,7 @@ const Products = () => {
       getAllProducts();
     }, 500); 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchKeyword, selectedCategory, selectedBrand, sort, priceRange[0], priceRange[1]]);
+  }, [currentPage, searchKeyword, selectedCategory, selectedBrand, sort, priceRange[0], priceRange[1]]);
 
   const handleSearchChange = (e) => {
     setLocalSearch(e.target.value);
@@ -104,10 +109,18 @@ const Products = () => {
               <ProductCard  key={index} loading={true} />
             ))
           ) : (
-            products.map((product) => (
+            products.map((product: any) => (
               <ProductCard product={product} key={product._id} loading={false} />
             ))
           )}
+        </div>
+        <div className="ml-auto mt-8">
+          <Pagination 
+          totalItems ={productsCount}
+          itemsPerPage={1}
+          currentPage={currentPage}
+          onPageChange={(page: number) => setCurrentPage(page)}
+          />
         </div>
       </div>
     </div>

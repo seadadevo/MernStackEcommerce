@@ -5,7 +5,8 @@ const initialState = {
     selectedCategory: 'all',
     selectedBrand: 'all',
     searchKeyword: '',
-    priceRange: [0, 100000] 
+    priceRange: [0, 100000] ,
+    productsCount: 0,
 };
 
 const productSlice = createSlice({
@@ -32,6 +33,9 @@ const productSlice = createSlice({
             state.selectedBrand = 'all';
             state.searchKeyword = '';
             state.priceRange = [0, 100000];
+        },
+        setProductCount: (state, aciton) => {
+            state.productsCount = aciton.payload;
         }
     }
 });
@@ -42,7 +46,8 @@ export const {
     setSelectedBrand,
     setSearchKeyword, 
     setPriceRange,
-    resetFilters 
+    resetFilters,
+    setProductCount
 } = productSlice.actions;
 
 export default productSlice.reducer;
