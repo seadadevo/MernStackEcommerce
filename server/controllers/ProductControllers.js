@@ -52,6 +52,7 @@ export const getAllProducts = async (req, res) => {
         const apiFeatures = new APIFeatures(Product.find(), req.query)
             .search()
             .filter()
+            .execute()
             .sort()
             .limitFields();
 

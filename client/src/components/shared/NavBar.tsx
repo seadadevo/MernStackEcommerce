@@ -5,7 +5,6 @@ import api from "@/api/axios";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/redux/userSlice";
-import { ModeToggle } from "../Mode-toggle";
 
 const NavBar = () => {
   const accessToken = localStorage.getItem("accessToken");

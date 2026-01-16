@@ -1,5 +1,6 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import userReducer  from "./userSlice";
+import productReducer  from "./productSlice";
 import { createRoot } from 'react-dom/client'
 import {
   persistStore,
@@ -21,7 +22,8 @@ const persistConfig = {
 }
 
 const rootReducer = combineReducers({
-    user: userReducer
+    user: userReducer,
+    products: productReducer
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
