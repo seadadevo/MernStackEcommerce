@@ -5,7 +5,7 @@ import { Outlet } from 'react-router-dom'
 
 const ProductsLayout = () => {
   return (
-    <div className=' '>
+    <div className='flex flex-col min-h-screen'>
          <NavBar/>
         <main className='flex-1 max-w-7xl mx-auto w-full px-4 pt-20 pb-8'> 
             <Outlet/>
