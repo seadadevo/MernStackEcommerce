@@ -4,14 +4,15 @@ import { Button } from "../ui/button";
 import api from "@/api/axios";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "@/redux/userSlice";
+import { logout, setUser } from "@/redux/userSlice";
 
 const NavBar = () => {
   const accessToken = localStorage.getItem("accessToken");
-  const { user } = useSelector((state: any) => state.user);
+  const { user, isAuthenticated } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {cartItems} = useSelector((state:any) => state.cart)
+  console.log(cartItems)
   const handleLogout = async () => {
   try {
     const res = await api.post(`/user/logout`, {}, {
@@ -19,8 +20,7 @@ const NavBar = () => {
     });
 
     if (res.data.success) { 
-      dispatch(setUser(null)); 
-      localStorage.removeItem("accessToken"); 
+      dispatch(logout()); 
       toast.success(res.data.message);
     }
   } catch (error) {
@@ -74,7 +74,7 @@ const NavBar = () => {
           <Link to={"/cart"} className="relative ">
             <ShoppingCart />
             <span className="bg-pink-500 rounded-full absolute text-white -top-3 -right-5 px-2 ">
-              {cartItems.length}
+            {cartItems?.length}
             </span>
           </Link>
           {user ? (

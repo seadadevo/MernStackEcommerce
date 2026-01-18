@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { sendOtpMail } from "../utils/sendOtpMail.js";
 import cloudinary from "../config/cloundinary.js";
 import { uploadStream } from "../utils/cloudinaryHelper.js";
+import { Cart } from "../models/cartModel.js";
 
 export const register = async (req, res) => {
     try {
@@ -169,7 +170,7 @@ export const login = async (req, res) => {
         message: "User not exist"
     })
     }
-
+    const cart = await Cart.findOne({userId: existingUser._id}).populate("items.productId")
     const isPasswordValid = await bcrypt.compare(password, existingUser.password) 
     if(!isPasswordValid) {
         return res.status(400).json({
@@ -221,6 +222,7 @@ export const login = async (req, res) => {
         success: true,
         message: `Welcome back ${existingUser.firstName}`,
         user: userReponse,
+        cart,
         accessToken,
         refreshToken
     })

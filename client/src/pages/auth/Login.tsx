@@ -18,6 +18,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/userSlice";
+import { setCart, setCartItems } from "@/redux/cartSlice";
 
 const Login = () => {
 
@@ -46,9 +47,12 @@ const Login = () => {
       setLoading(true);
       const res = await api.post('/user/login', formData)
       if(res.data.success){
-        navigate("/");
-        dispatch(setUser(res.data.user));
         localStorage.setItem('accessToken' , res.data.accessToken)
+        dispatch(setUser(res.data.user));
+        dispatch(setCart(res.data.cart))
+        console.log(res.data)
+        dispatch(setCartItems(res.data.cart.items))
+        navigate("/");
         toast.success(res.data.message);
       }
     } catch (error) {

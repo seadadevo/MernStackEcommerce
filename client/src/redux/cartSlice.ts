@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { logout } from "./userSlice";
 
 const initialState = {
     cart: [],
@@ -17,6 +18,12 @@ const cartSlice = createSlice({
             state.cartItems = action.payload;
         },
         
+    },
+    extraReducers: (builder) => {
+        builder.addCase(logout, (state) => {
+            state.cartItems = [];
+            state.cart = [];
+        } )
     }
 })
 
