@@ -11,7 +11,7 @@ const NavBar = () => {
   const { user } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const {cartItems} = useSelector((state:any) => state.cart)
   const handleLogout = async () => {
   try {
     const res = await api.post(`/user/logout`, {}, {
@@ -74,7 +74,7 @@ const NavBar = () => {
           <Link to={"/cart"} className="relative ">
             <ShoppingCart />
             <span className="bg-pink-500 rounded-full absolute text-white -top-3 -right-5 px-2 ">
-              0
+              {cartItems.length}
             </span>
           </Link>
           {user ? (

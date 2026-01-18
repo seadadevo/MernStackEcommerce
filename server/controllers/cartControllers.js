@@ -142,6 +142,7 @@ export const deleteFromCart = async(req, res) => {
         cart.items = cart.items.filter(item => item.productId.toString() !== productId )
         cart.totalPrice = cart.items.reduce((acc, item) => acc+item.price * item.quantity, 0);
         await cart.save();
+        await cart.populate("items.productId");
         return res.status(200).json({
           success: true,
           cart

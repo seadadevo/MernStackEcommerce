@@ -9,7 +9,7 @@ import Home from '@/pages/Home/Home'
 import Profile from '@/pages/Home/Profile'
 import Products from '@/pages/Products/Products'
 import ProductsLayout from '@/layouts/ProductsLayout'
-import Test from '@/pages/Test'
+import Cart from '@/pages/Cart'
 
 const AppRoutes = () => {
   return (
@@ -20,7 +20,7 @@ const AppRoutes = () => {
         </Route>
         <Route element={<ProductsLayout/>}>
             <Route path='/products' element={<Products/>}/>
-            <Route path='/test' element={<Test/>}/>
+            <Route path='/cart' element={<Cart/>}/>
         </Route>
         <Route element={<AuthLayout/>}>
             <Route path='/sign-up' element={<SignUp/>}/>
