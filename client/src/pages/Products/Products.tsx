@@ -14,7 +14,6 @@ import {  useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {  setProductCount, setProducts, setSearchKeyword } from "@/redux/productSlice";
 import { Input } from "@/components/ui/input";
-import qs from "qs";
 import Pagination from "../../components/Home/Products/Pagination";
 
 

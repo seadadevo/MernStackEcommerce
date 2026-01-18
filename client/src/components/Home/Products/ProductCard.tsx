@@ -2,10 +2,55 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ShoppingCart, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import api from "@/api/axios";
+import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setCart, setCartItems } from "@/redux/cartSlice";
+import { useEffect, useState } from "react";
 
 const ProductCard = ({ product, loading }) => {
+  const accessToken = localStorage.getItem('accessToken');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const {cart, cartItems} = useSelector((state: any) => state.cart)
   
-  
+  const addToCart = async (productId: string) => {
+    try {
+      const res = await api.post('/cart/add' , {productId}, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+
+      if(res.data.success) {
+        toast.success('Product added to cart');
+        dispatch(setCart(res.data.cart))
+        dispatch(setCartItems(res.data.cart.items));
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const updateQty = async(productId: string , type: "increase" | "decrease") => {
+    try {
+      const res = await api.post(`/cart/update`, { productId,type}, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      })
+      if (res.data.success) {
+       dispatch(setCart(res.data.cart));
+      dispatch(setCartItems(res.data.cart.items));
+    }
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+    }
+  }
+
+  useEffect(() => {
+  console.log("items: ", cartItems);
+}, [cartItems]);
+
   if (loading) {
     return (
       <div className="flex flex-col space-y-4 bg-white rounded-2xl p-4 border border-gray-100">
@@ -23,8 +68,12 @@ const ProductCard = ({ product, loading }) => {
       </div>
     );
   }
-
-
+  
+const itemInCart = cartItems?.find((item: any) => {
+  const cartProductId = item?.productId?._id || item?.productId;  
+  return cartProductId === product._id;
+});
+  
   const mainImage = product.productImag[0]?.url || "./heroImage.avif";
   
   return (
@@ -71,14 +120,29 @@ const ProductCard = ({ product, loading }) => {
               ${product.productPrice}
             </span>
           </div>
-
+        {
+          !itemInCart ? 
           <Button
             size="sm"
             className="bg-gray-900 hover:bg-pink-600 text-white rounded-lg px-3 flex gap-2 transition-colors"
+            onClick={() => addToCart(product._id)}
           >
             <ShoppingCart size={16} />
             <span className="hidden sm:inline">Add</span>
           </Button>
+  :       <div className="flex items-center justify-center gap-2">
+            <Button onClick={() => updateQty(product._id , "increase")}
+             className="p-2 bg-red-600 rounded-md shadow-2xl">
+              +
+            </Button>
+            <span className="-p-1 font-bold">
+              {itemInCart.quantity}
+            </span>
+            <Button onClick={() => updateQty(product._id , "decrease")} className="p-2 bg-red-600 rounded-md shadow-2xl">
+              -
+            </Button>
+          </div>
+        }
         </div>
       </div>
     </div>

@@ -30,7 +30,6 @@ const Pagination = ({  totalItems ,itemsPerPage ,currentPage ,onPageChange }) =>
         onClick={() => onPageChange(currentPage + 1)}>
         Next
         </Button>
-
     </div>
   )
 }

@@ -1,5 +1,5 @@
-import { Cart } from "../models/cartModel";
-import { Product } from "../models/productModel";
+import { Cart } from "../models/cartModel.js";
+import { Product } from "../models/productModel.js";
 
 export const getCart = async (req, res) => {
   try {
@@ -22,7 +22,7 @@ export const getCart = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 export const addToCart = async (req, res) => {
   try {
@@ -91,7 +91,11 @@ export const updateQuantity = async(req, res) => {
              message: "Cart not Found"
             });
         }
-        const item = cart.items.find(item => item.productId.toString() === productId);
+
+
+        const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
+
+        const item = cart.items[itemIndex];
         if(!item) {
            return res.status(404).json({
              success: false, 
@@ -101,8 +105,12 @@ export const updateQuantity = async(req, res) => {
        if(type === "increase"){
         item.quantity += 1;
        }
-       if(type === "decrease" && item.quantity > 1){
+       if(type === "decrease" ){
         item.quantity -= 1;
+       }
+
+       if(item.quantity <= 0) {
+        cart.items.splice(itemIndex , 1);
        }
 
        cart.totalPrice = cart.items.reduce((acc, item) => acc + item.price * item.quantity, 0)
