@@ -83,3 +83,11 @@ export const SIDEBAR_TAPS = [
     path: "/dashboard/settings"
   }
 ];
+
+export const PRODUCT_INPUTS = [
+  { name: "productName", label: "Name", id: "name", placeholder: "Add name", type: "text" },
+  { name: "productDesc", label: "Description", id: "description", placeholder: "Add description", type: "text" },
+  { name: "productPrice", label: "Price", id: "price", placeholder: "Add price", type: "number" },
+  { name: "brand", label: "Brand", id: "brand", placeholder: "Add brand", type: "text" },
+  { name: "category", label: "Category", id: "category", placeholder: "Add category", type: "text" },
+];

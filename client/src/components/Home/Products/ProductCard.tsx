@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
 import ProductSkeleton from "./ProductSkeleton";
 
-const ProductCard = ({ product, loading }) => {
+const ProductCard = ({ product, loading }: {product?: any , loading: boolean}) => {
   const navigate = useNavigate();
   const { cartItems } = useSelector((state: any) => state.cart);
   const { addToCart, updateQty, loading: cartLoading } = useCart();

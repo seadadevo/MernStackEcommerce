@@ -10,7 +10,7 @@ import FilterSlider from "@/components/Home/Products/FilterSlider";
 import ProductCard from "@/components/Home/Products/ProductCard";
 import { toast } from "sonner";
 import api from "@/api/axios";
-import {  useEffect, useState } from "react";
+import {  useEffect, useState, type ChangeEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {  setProductCount, setProducts, setSearchKeyword } from "@/redux/productSlice";
 import { Input } from "@/components/ui/input";
@@ -34,7 +34,7 @@ const Products = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [currentPage, searchKeyword, selectedCategory, selectedBrand, sort, priceRange[0], priceRange[1]]);
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e:ChangeEvent<HTMLInputElement>) => {
     setLocalSearch(e.target.value);
   };
 

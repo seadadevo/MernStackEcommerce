@@ -36,6 +36,14 @@ const productSlice = createSlice({
         },
         setProductCount: (state, aciton) => {
             state.productsCount = aciton.payload;
+        },
+        addProduct: (state, action) => {
+        state.products.unshift(action.payload);
+        state.productsCount += 1;
+        },
+        deleteProduct: (state, action) => {
+            state.products = state.products.filter(p => p._id !== action.payload);
+            state.productsCount -= 1
         }
     }
 });
@@ -47,7 +55,9 @@ export const {
     setSearchKeyword, 
     setPriceRange,
     resetFilters,
-    setProductCount
+    setProductCount,
+    addProduct,
+    deleteProduct
 } = productSlice.actions;
 
 export default productSlice.reducer;

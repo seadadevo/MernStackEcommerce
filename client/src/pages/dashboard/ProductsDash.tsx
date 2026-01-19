@@ -15,11 +15,11 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { setSearchKeyword } from "@/redux/productSlice";
+import Pagination from "@/components/Home/Products/Pagination";
 
 const ProductsDash = () => {
   const dispatch = useDispatch();
-  // سحب البيانات من Redux
-  const { products, searchKeyword, selectedCategory, selectedBrand, sort, priceRange } = useSelector((state: any) => state.products);
+  const { products, searchKeyword, productsCount, selectedCategory, selectedBrand, priceRange } = useSelector((state: any) => state.products);
   
   const [localSearch, setLocalSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,7 +27,6 @@ const ProductsDash = () => {
 
   const { getAllProducts, loading } = useProduct();
 
-  // 1. جلب البيانات عند تغير الفلاتر (استخدمنا limit أكبر للداشبورد)
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       getAllProducts(currentPage, 10, currentSort);
@@ -35,7 +34,6 @@ const ProductsDash = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [currentPage, searchKeyword, selectedCategory, selectedBrand, currentSort, priceRange, getAllProducts]);
 
-  // 2. هندلة البحث مع Debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       dispatch(setSearchKeyword(localSearch));
@@ -99,7 +97,7 @@ const ProductsDash = () => {
           </TableHeader>
           <TableBody>
             {loading ? (
-              // Loading Skeleton (يمكنك عمل واحدة مخصصة لاحقاً)
+             
               <TableRow><TableCell colSpan={6} className="text-center py-10">Loading products...</TableCell></TableRow>
             ) : products?.length > 0 ? (
               products.map((item: any) => (
@@ -151,6 +149,13 @@ const ProductsDash = () => {
           </TableBody>
         </Table>
       </div>
+
+      <Pagination
+      totalItems= {productsCount}
+    itemsPerPage= {1}
+    currentPage={currentPage}
+    onPageChange={(page: number) => setCurrentPage(page)}
+      />
     </div>
   );
 };
