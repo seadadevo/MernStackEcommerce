@@ -13,6 +13,7 @@ const NavBar = () => {
   const navigate = useNavigate();
   const {cartItems} = useSelector((state:any) => state.cart)
   console.log(cartItems)
+  const isAdmin = user?.role === 'admin'  ;
   const handleLogout = async () => {
   try {
     const res = await api.post(`/user/logout`, {}, {
@@ -48,9 +49,12 @@ const NavBar = () => {
             <Link to={"/products"}>
               <li>products</li>
             </Link>
-            <Link to={"/test"}>
-              <li>test</li>
+            {
+              isAdmin && 
+              <Link to={"/dashboard"}>
+              <li>dashboard</li>
             </Link>
+            }
             {user && (
               <Link
                 to={`/profile/${user._id}`}
