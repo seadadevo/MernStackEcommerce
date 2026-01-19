@@ -3,7 +3,7 @@ import { ShoppingCart, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/hooks/useCart";
 import ProductSkeleton from "./ProductSkeleton";
 
@@ -34,13 +34,12 @@ const ProductCard = ({ product, loading }) => {
           className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-          <Button
-            size="icon"
-            variant="secondary"
-            className="rounded-full shadow-lg hover:bg-pink-500 hover:text-white transition-colors"
+          <Link
+            to={`/product/${product._id}`}
+            className="p-3 bg-white rounded-full shadow-lg hover:bg-pink-500 hover:text-white transition-colors"
           >
             <Eye size={18} />
-          </Button>
+          </Link>
         </div>
       </div>
 

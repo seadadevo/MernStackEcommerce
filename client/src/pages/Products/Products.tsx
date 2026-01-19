@@ -15,55 +15,21 @@ import { useDispatch, useSelector } from "react-redux";
 import {  setProductCount, setProducts, setSearchKeyword } from "@/redux/productSlice";
 import { Input } from "@/components/ui/input";
 import Pagination from "../../components/Home/Products/Pagination";
+import { useProduct } from "@/hooks/useProducts";
 
 
 const Products = () => {
   const {products, selectedCategory,productsCount ,searchKeyword ,selectedBrand, priceRange } = useSelector((state:any) => state.products)
+  const { getAllProducts, loading } = useProduct();
   const [localSearch, setLocalSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sort, setSort] = useState("")
-  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch()
-  const getAllProducts = async () => {
-    try {
-      // keyword=searchKeyword&category=Accessories&brand=Samsung,hawawy
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (searchKeyword) params.append("keyword", searchKeyword);
-      if (selectedCategory && selectedCategory !== "all") {
-        params.append("category", selectedCategory);
-      }
-      if (selectedBrand && selectedBrand !== "all") {
-        params.append("brand", selectedBrand);
-      }
-      if(sort) params.append("sort", sort)
-        // Only apply price filter if it's been modified from default
-      if (priceRange && (priceRange[0] > 0 || priceRange[1] < 100000)) {
-        params.append("productPrice[gte]", priceRange[0].toString());
-        params.append("productPrice[lte]", priceRange[1].toString());
-      }
-      params.append("page", currentPage.toString());
-      params.append("limit", "1");
-
-      const res = await api.get(`/product/all?${params.toString()}`);
-      if (res.data.success) {
-        const fetchedProducts = res.data.products;
-        dispatch(setProducts(fetchedProducts));
-        dispatch(setProductCount(res.data.totalProductsCount))
-        console.log(res.data.totalProductsCount)
-      }
-    } catch (error: any) {
-      console.error(error);
-      toast.error(error?.response?.data?.message || "Failed to fetch products");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  
   
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      getAllProducts();
+      getAllProducts(currentPage, 1, sort);
     }, 500); 
     return () => clearTimeout(delayDebounceFn);
   }, [currentPage, searchKeyword, selectedCategory, selectedBrand, sort, priceRange[0], priceRange[1]]);

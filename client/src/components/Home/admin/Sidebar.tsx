@@ -1,7 +1,7 @@
 import { SIDEBAR_TAPS } from "@/constants";
 import { MenuIcon } from "lucide-react";
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -28,43 +28,28 @@ const Sidebar = () => {
       </div>
 
       <ul className="flex-1 px-3 space-y-1">
-        {SIDEBAR_TAPS.map((tap, index) => {
-          const isActive = pathname === tap.path;
-          return (
-            <li key={index}>
-              <Link
-                to={tap.path}
-                className={`
-                  flex items-center p-3 rounded-lg transition-all group
-                  ${isActive 
-                    ? "bg-pink-600 text-white shadow-md shadow-pink-200" 
-                    : "text-gray-600 hover:bg-pink-50 hover:text-pink-600"}
-                `}
-              >
-                <div className={`${isActive ? "text-white" : "text-gray-500 group-hover:text-pink-600"}`}>
-                  {tap.icon}
-                </div>
-                
-                <span
-                  className={`
-                    ml-4 font-medium whitespace-nowrap overflow-hidden transition-all duration-300
-                    ${isSidebarOpen ? "w-auto opacity-100" : "w-0 opacity-0"}
-                  `}
-                >
-                  {tap.label}
-                </span>
-
-            
-                {!isSidebarOpen && (
-                   <div className="absolute left-16 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
-                      {tap.label}
-                   </div>
-                )}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+  {SIDEBAR_TAPS.map((item, index) => (
+    <li key={index}>
+      <NavLink end
+        to={item.path}
+        className={({ isActive }) => 
+          `flex items-center p-3 rounded-lg transition-all group ${
+            isActive ? "bg-pink-600 text-white" : "text-gray-600 hover:bg-pink-50"
+          }`
+        }
+      >
+        {({ isActive }) => (
+          <>
+            <span className={isActive ? "text-white" : "group-hover:text-pink-600"}>
+              {item.icon}
+            </span>
+            {isSidebarOpen && <span className="ml-4">{item.label}</span>}
+          </>
+        )}
+      </NavLink>
+    </li>
+  ))}
+</ul>
     </aside>
   );
 };
