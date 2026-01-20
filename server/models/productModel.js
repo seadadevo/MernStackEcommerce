@@ -18,6 +18,11 @@ const productSchema = new mongoose.Schema({
         public_id: {type: String, required: true},
     }],
     productPrice: {type: Number},
+    stock: {
+        type: Number,
+        required: [true, "please enter product stock"],
+        default: 0
+    },
     category: {type: String},
     brand: {type: String},
 

@@ -2,7 +2,6 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import userReducer  from "./userSlice";
 import productReducer  from "./productSlice";
 import cartReducer  from "./cartSlice";
-import { createRoot } from 'react-dom/client'
 import {
   persistStore,
   persistReducer,
@@ -18,7 +17,7 @@ import storage from 'redux-persist/lib/storage';
 
 const persistConfig = {
   key: 'Ecommerce',
-  version: 1,
+  version: 2,
   storage,
 }
 

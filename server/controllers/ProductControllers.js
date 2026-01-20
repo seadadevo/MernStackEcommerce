@@ -4,7 +4,7 @@ import { uploadStream } from "../utils/cloudinaryHelper.js";
 
 export const addProduct = async (req , res ) => {
     try {
-        const { productName, productDesc, productPrice, category, brand, variants } = req.body;
+        const { productName, productDesc, productPrice, category, brand, stock } = req.body;
         const userId = req.id;
         const files = req.files;
 
@@ -31,6 +31,7 @@ export const addProduct = async (req , res ) => {
             productPrice,
             category,
             brand,
+            stock: stock || 0,
             productImag: productImgData
         });
     
@@ -113,7 +114,7 @@ export const deleteProduct = async(req, res) => {
 export const updateProduct = async (req, res) => {
     try {
         const { productId } = req.params;
-        const { productName, productDesc, productPrice, category, brand } = req.body;
+        const { productName, productDesc, productPrice, category, brand, stock } = req.body;
         const files = req.files;
         const product = await Product.findById(productId);
         if (!product) {
@@ -140,7 +141,7 @@ export const updateProduct = async (req, res) => {
         if (productPrice) product.productPrice = productPrice;
         if (category) product.category = category;
         if (brand) product.brand = brand;
-
+        if (req.body.stock !== undefined) product.stock = req.body.stock;
         await product.save()
 
         return res.status(200).json({

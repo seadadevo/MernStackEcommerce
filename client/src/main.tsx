@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 
 import './index.css'
 import App from './App.tsx'
-import store from './redux/strore.ts'
+import store from './redux/store.ts'
 import { Toaster } from 'sonner'
 import { PersistGate } from 'redux-persist/integration/react'
 import persistStore from 'redux-persist/es/persistStore'
