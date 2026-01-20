@@ -111,7 +111,7 @@ export const getOrderDetails = async (req, res) => {
       success: true,
       order,
     });
-} catch (error) {
+  } catch (error) {
     if (error.name === "CastError") {
       return res
         .status(400)
@@ -121,42 +121,182 @@ export const getOrderDetails = async (req, res) => {
       success: false,
       message: error.message,
     });
-}
+  }
 };
 
 export const cancelOrder = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const userId = req.id;
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    if (order.user.toString() !== userId) {
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message: "You can only cancel your own orders",
+        });
+    }
+
+    if (order.status !== "Pending") {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Cannot cancel order once it is shipped or delivered",
+        });
+    }
+
+    for (const item of order.orderItems) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        product.stock += item.quantity;
+        await product.save();
+      }
+    }
+
+    order.status = "Cancelled";
+    await order.save();
+    return res.status(200).json({
+      success: true,
+      message: "Order cancelled successfully and stock updated",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate("user", "firstName lastName email")
+      .sort("-createdAt");
+
+    const totalAmount = orders.reduce(
+      (acc, order) => acc + order.billDetails.totalPrice,
+      0,
+    );
+    return res.status(200).json({
+      success: true,
+      message: "All Orders returned Successfully ",
+      totalAmount,
+      count: orders.length,
+      orders,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+    if (order.status === "Delivered" || order.status === "Cancelled") {
+    return res.status(400).json({ 
+        success: false, 
+        message: `Cannot update status. Order is already ${order.status}` 
+    });
+}
+
+    order.status = status;
+    if (status === "Delivered") {
+      order.paymentStatus = "Paid";
+      order.deliveredAt = Date.now();
+    }
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Order status updated to ${status}`,
+      order,
+    });
+} catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+}
+};
+
+export const deleteOrder = async(req, res) => {
     try {
         const orderId = req.params.id;
-        const userId = req.id;
-
         const order = await Order.findById(orderId);
-
         if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found" });
+         return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
         }
 
-        if (order.user.toString() !== userId) {
-            return res.status(403).json({ success: false, message: "You can only cancel your own orders" });
-        }
-
-        if (order.status !== "Pending") {
-            return res.status(400).json({ success: false, message: "Cannot cancel order once it is shipped or delivered" });
-        }
-        
-        for (const item of order.orderItems) {
-            const product = await Product.findById(item.product);
-            if(product) {
-                product.stock += item.quantity;
-                await product.save();
+        if(order.status !== "Cancelled" && order.status !== "Delivered" ) {
+            for (const item of order.orderItems)     {
+                const product = await Product.findById(item.product);
+                if(product) {
+                    product.stock += item.quantity;
+                    await product.save();
+                }
             }
         }
-
-        order.status = "Cancelled";
-        await order.save();
+        await order.deleteOne()
         return res.status(200).json({
           success: true,
-          message: "Order cancelled successfully and stock updated"
+          message: `Order Deleted Successfully and Stock Updated`,
         });
+    } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: error.message,
+        });
+    }
+}
+
+export const getSalesStatus = async (req, res) => {
+    try {
+        const today = new Date();
+        const thrityDayAgo = new Date();
+        thrityDayAgo.setDate(today.getDate() - 30);
+        const stats = await Order.aggregate([
+            {    
+                $match: {
+                    createdAt: {$gte: thrityDayAgo},
+                    status: { $ne : "Cancelled"} 
+                }
+            },
+            {
+                $group: {
+                    _id: "$status",
+                    count: { $sum: 1 },
+                    totalRevenue: { $sum: "$billDetails.totalPrice" }
+                }
+            }
+        ])
+        return res.status(200).json({
+          success: true,
+          stats
+        });
+
     } catch (error) {
         return res.status(500).json({
           success: false,

@@ -59,6 +59,9 @@ const orderSchema = new mongoose.Schema(
       orderId: { type: String },
       status: { type: String },
     },
+    deliveredAt:{ 
+        type: Date,    
+    }
   },
   { timestamps: true },
 );
