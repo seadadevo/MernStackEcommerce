@@ -1,4 +1,4 @@
-import { Product } from "../models/productModel";
+import { Product } from "../models/productModel.js";
 import { Order } from "../models/orderModel.js";
 
 export const createOrder = async (req, res) => {
@@ -26,12 +26,13 @@ export const createOrder = async (req, res) => {
       if (productData.stock < item.quantity) {
         return res.status(400).json({
           success: false,
-          message: `Not enough stock for ${productData.name}`,
+          message: `Not enough stock for ${productData.productName}`,
         });
       }
 
-      const itemPrice = productData.price;
-      subtotal += itemPrice * item.quantity;
+      const itemPrice = Number(productData.productPrice);
+      const itemquantity = Number(item.quantity);
+      subtotal += itemPrice * itemquantity;
 
       orderedProducts.push({
         product: productData._id,
@@ -44,12 +45,15 @@ export const createOrder = async (req, res) => {
     }
 
     const shippingPrice = subtotal > 500 ? 0 : 50;
-    const taxPrice = Math.round(subtotal * 0.14);
-    const totalPrice = subtotal + shippingPrice + taxPrice;
+    const taxPrice = Math.round(subtotal * 0.14) || 0;
+    const totalPrice = subtotal + shippingPrice + taxPrice; 
 
+    if (isNaN(totalPrice)) {
+    throw new Error("Calculation Error: Total Price is not a number");
+    }
     const order = await Order.create({
       user: userId,
-      orderedProducts: orderedProducts,
+      orderItems: orderedProducts,
       billDetails: {
         subtotal,
         taxPrice,
@@ -94,9 +98,9 @@ export const getMyOrders = async (req, res) => {
 
 export const getOrderDetails = async (req, res) => {
   try {
-    const orderId = req.params.id;
+    const { orderId } = req.params;
     const order = await Order.findById(orderId)
-      .popualte({ path: "user", select: "firstName email" })
+      .populate({ path: "user", select: "firstName email" })
       .populate({
         path: "orderItems.product",
         select: "productName productImag",
@@ -126,7 +130,7 @@ export const getOrderDetails = async (req, res) => {
 
 export const cancelOrder = async (req, res) => {
   try {
-    const orderId = req.params.id;
+    const { orderId } = req.params;
     const userId = req.id;
 
     const order = await Order.findById(orderId);
@@ -137,7 +141,7 @@ export const cancelOrder = async (req, res) => {
         .json({ success: false, message: "Order not found" });
     }
 
-    if (order.user.toString() !== userId) {
+    if (order.user.toString() !== userId.toString()) {
       return res
         .status(403)
         .json({
@@ -204,7 +208,7 @@ export const getAllOrders = async (req, res) => {
 
 export const updateOrderStatus = async (req, res) => {
   try {
-    const orderId = req.params.id;
+    const orderId = req.params.orderId;
     const { status } = req.body;
     const order = await Order.findById(orderId);
 
@@ -242,7 +246,7 @@ export const updateOrderStatus = async (req, res) => {
 
 export const deleteOrder = async(req, res) => {
     try {
-        const orderId = req.params.id;
+        const orderId = req.params.orderId;
         const order = await Order.findById(orderId);
         if (!order) {
          return res
@@ -305,7 +309,7 @@ export const getSalesStatus = async (req, res) => {
     }
 }
 
-const getTopSellingProducts = async (req, res) => {
+export const getTopSellingProducts = async (req, res) => {
     try {
         const stats = await Order.aggregate([
             {

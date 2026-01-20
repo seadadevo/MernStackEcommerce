@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import userRoute from './routes/userRoute.js'  
 import productRoute from './routes/productRoute.js'  
 import carttRoute from './routes/cartRoute.js'  
+import orderRoute from './routes/orderRoute.js'  
 
 const app = express();
 const PORT =  process.env.PORT || 3000;
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use('/api/v1/user', userRoute)
 app.use('/api/v1/product', productRoute)
 app.use('/api/v1/cart', carttRoute)
+app.use('/api/v1/order', orderRoute)
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}/`);
