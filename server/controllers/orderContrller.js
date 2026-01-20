@@ -304,3 +304,50 @@ export const getSalesStatus = async (req, res) => {
         });
     }
 }
+
+const getTopSellingProducts = async (req, res) => {
+    try {
+        const stats = await Order.aggregate([
+            {
+                $unwind: "$orderItems" 
+            },
+            {
+                $group: {
+                    _id: "$orderItems.product",
+                    totalSold: {$sum: "$orderItems.quantity"},
+                    totalRevenue: {$sum: {$multiply: ["$orderItems.quantity" , "$orderItems.price"]}}
+                }
+            },
+            {
+                $sort: {totalSold: -1}
+            },
+            {
+                $limit: 5
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            {
+                $unwind: "$productDetails"
+            }
+        ]) 
+        return res.status(200).json({
+          success: true,
+          message: "Top 5 selling products fetched",
+          stats
+        });
+        
+    } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: error.message,
+        });
+    } 
+} 
+
+
