@@ -1,20 +1,21 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "MERN E-commerce Backend API",
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "cross-env NODE_ENV=production node server.js",
+    "dev": "cross-env NODE_ENV=development nodemon server.js"
   },
-  "keywords": [],
+  "keywords": ["ecommerce", "mern", "api"],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "datauri": "^4.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",

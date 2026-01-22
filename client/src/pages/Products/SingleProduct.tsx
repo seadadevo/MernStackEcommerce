@@ -9,21 +9,25 @@ import {
   ChevronRight,
   Minus,
   Plus,
+  PackageCheck,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSelector, useDispatch } from "react-redux";
+import { Badge } from "@/components/ui/badge";
+import { useCart } from "@/hooks/useCart";
 
 const SingleProduct = () => {
   const { productId } = useParams();
-  const dispatch = useDispatch();
-
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [fisrtImage, setFisrtImage] = useState<string>("");
+  const [firstImage, setFirstImage] = useState<string>("");
 
   const { cartItems } = useSelector((state: any) => state.cart);
+  const { addToCart, updateQty, loading: cartLoading } = useCart();
+
   const itemInCart = cartItems?.find(
-    (item: any) => item.productId === productId,
+    (item: any) => (item.productId?._id || item.productId) === productId,
   );
 
   useEffect(() => {
@@ -34,7 +38,7 @@ const SingleProduct = () => {
         const data = res.data.product;
         setProduct(data);
         if (data?.productImag?.length > 0) {
-          setFisrtImage(data.productImag[0].url);
+          setFirstImage(data.productImag[0].url);
         }
       } catch (error) {
         console.error(error);
@@ -47,47 +51,54 @@ const SingleProduct = () => {
 
   if (loading)
     return (
-      <div className="h-screen flex items-center justify-center">
-        Loading...
+      <div className="h-screen flex items-center justify-center animate-pulse text-pink-600 font-medium text-lg">
+        Loading Product...
       </div>
     );
   if (!product)
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center text-gray-500">
         Product Not Found
       </div>
     );
+   
+  const isLowStock = product.stock > 0 && product.stock <= 5;
+  const isOutOfStock = product.stock === 0;
 
   return (
-    <div className="bg-white min-h-screen pb-20">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-2 text-sm text-gray-500">
-        <Link to="/" className="hover:text-pink-600">
+    <div className="bg-[#fafafa] min-h-screen pb-20">
+
+      <div className="max-w-7xl mx-auto px-4 py-6 flex items-center gap-2 text-sm text-gray-400">
+        <Link to="/" className="hover:text-pink-600 transition-colors">
           Home
         </Link>
         <ChevronRight size={14} />
-        <Link to="/products" className="hover:text-pink-600">
+        <Link to="/products" className="hover:text-pink-600 transition-colors">
           Products
         </Link>
         <ChevronRight size={14} />
-        <span className="text-gray-900 truncate">{product.productName}</span>
+        <span className="text-gray-900 font-medium truncate">
+          {product.productName}
+        </span>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="space-y-4">
-            <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 shadow-inner">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+    
+          <div className="space-y-6">
+            <div className="aspect-square bg-white rounded-3xl overflow-hidden border border-gray-50 shadow-sm group">
               <img
-                src={fisrtImage}
+                src={firstImage}
                 alt={product.productName}
-                className="w-full h-full object-contain mix-blend-multiply"
+                className="w-full h-full object-contain p-8 group-hover:scale-105 transition-transform duration-700"
               />
             </div>
-            <div className="flex gap-4 overflow-x-auto pb-2">
+            <div className="flex gap-4 overflow-x-auto py-2 scrollbar-hide">
               {product.productImag?.map((img: any, idx: number) => (
                 <button
                   key={idx}
-                  onClick={() => setFisrtImage(img.url)}
-                  className={`relative w-24 h-24 rounded-xl border-2 flex-shrink-0 overflow-hidden transition-all ${fisrtImage === img.url ? "border-pink-500" : "border-transparent bg-gray-50"}`}
+                  onClick={() => setFirstImage(img.url)}
+                  className={`relative w-20 h-20 rounded-2xl border-2 flex-shrink-0 overflow-hidden transition-all duration-300 ${firstImage === img.url ? "border-pink-500 scale-95" : "border-transparent opacity-60 hover:opacity-100"}`}
                 >
                   <img
                     src={img.url}
@@ -100,80 +111,117 @@ const SingleProduct = () => {
           </div>
 
           <div className="flex flex-col">
-            <div className="mb-6">
-              <span className="text-pink-600 font-semibold text-sm uppercase tracking-wider">
+            <div className="mb-2">
+              <Badge
+                variant="outline"
+                className="text-pink-600 border-pink-100 bg-pink-50/50 rounded-full px-4"
+              >
                 {product.brand}
-              </span>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2">
-                {product.productName}
-              </h1>
-              <div className="flex items-center gap-4 mt-4">
-                <div className="flex text-yellow-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={18} fill="currentColor" />
-                  ))}
-                </div>
-                <span className="text-gray-400 text-sm">|</span>
-                <span className="text-gray-600 text-sm italic">
-                  Sold by: {product.userId?.firstName}{" "}
-                  {product.userId?.lastName}
+              </Badge>
+            </div>
+
+            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+              {product.productName}
+            </h1>
+
+            <div className="flex items-center gap-6 mt-4">
+              <div className="flex items-center gap-1 text-yellow-400 bg-yellow-50 px-3 py-1 rounded-full">
+                <Star size={16} fill="currentColor" />
+                <span className="text-sm font-bold text-yellow-700">4.8</span>
+              </div>
+              <span className="text-gray-300">|</span>
+              <div className="flex items-center gap-2 text-gray-500 text-sm">
+                <PackageCheck size={16} />
+                <span>
+                  Sold by:{" "}
+                  <span className="font-semibold text-gray-800">
+                    {product.userId?.firstName}
+                  </span>
                 </span>
               </div>
             </div>
 
-            <div className="mb-8">
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-gray-900">
+
+            <div className="mt-8 p-6 bg-gray-50/50 rounded-3xl border border-gray-50">
+              <div className="flex items-baseline gap-3">
+                <span className="text-5xl font-black text-gray-900">
                   ${product.productPrice}
                 </span>
-                <span className="text-gray-500 line-through text-lg">
+                <span className="text-gray-400 line-through text-xl">
                   ${product.productPrice + 100}
                 </span>
               </div>
-              <p className="mt-4 text-gray-600 leading-relaxed text-lg">
+
+              {/* Stock Status Badge */}
+              <div className="mt-4">
+                {isOutOfStock ? (
+                  <Badge className="bg-red-100 text-red-600 hover:bg-red-100 border-none gap-1.5 px-3 py-1">
+                    <AlertTriangle size={14} /> Out of Stock
+                  </Badge>
+                ) : isLowStock ? (
+                  <Badge className="bg-orange-100 text-orange-600 hover:bg-orange-100 border-none gap-1.5 px-3 py-1">
+                    Only {product.stock} units left!
+                  </Badge>
+                ) : (
+                  <Badge className="bg-green-100 text-green-600 hover:bg-green-100 border-none gap-1.5 px-3 py-1">
+                    In Stock ({product.stock} available)
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <h3 className="font-bold text-gray-900 mb-3 uppercase text-xs tracking-widest">
+                Description
+              </h3>
+              <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">
                 {product.productDesc}
               </p>
             </div>
 
-            <div className="mt-auto space-y-6">
+            <div className="mt-12 space-y-6">
               {itemInCart ? (
-                <div className="flex items-center gap-6 p-4 bg-pink-50 rounded-2xl w-fit border border-pink-100">
-                  <div className="flex items-center gap-4">
-                    <button className="p-2 bg-white rounded-full shadow-sm hover:text-pink-600">
-                      <Minus size={20} />
-                    </button>
-                    <span className="text-xl font-bold w-8 text-center">
-                      {itemInCart.quantity}
-                    </span>
-                    <button className="p-2 bg-white rounded-full shadow-sm hover:text-pink-600">
-                      <Plus size={20} />
-                    </button>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-6 p-2 bg-white rounded-2xl w-fit border-2 border-pink-500 shadow-sm shadow-pink-100">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-xl hover:bg-pink-50 text-pink-600"
+                        onClick={() => updateQty(product._id, "decrease")}
+                      >
+                        <Minus size={20} />
+                      </Button>
+                      <span className="text-2xl font-black w-10 text-center text-gray-900">
+                        {itemInCart.quantity}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-xl hover:bg-pink-50 text-pink-600"
+                        disabled={itemInCart.quantity >= product.stock}
+                        onClick={() => updateQty(product._id, "increase")}
+                      >
+                        <Plus size={20} />
+                      </Button>
+                    </div>
                   </div>
-                  <span className="text-pink-600 font-medium">
-                    In your cart
-                  </span>
+                  <p className="text-pink-600 text-sm font-semibold flex items-center gap-2">
+                    <ShoppingCart size={16} /> Item is in your cart
+                  </p>
                 </div>
               ) : (
-                <Button className="w-full md:w-2/3 h-14 text-lg bg-pink-600 hover:bg-pink-700 rounded-2xl shadow-lg shadow-pink-200 gap-3">
-                  <ShoppingCart size={22} />
-                  Add to Cart
+                <Button
+                  disabled={isOutOfStock || cartLoading}
+                  onClick={() => addToCart(product._id)}
+                  className="w-full md:w-3/4 h-16 text-xl bg-gray-900 hover:bg-pink-600 rounded-2xl shadow-xl transition-all duration-300 gap-3 active:scale-95"
+                >
+                  <ShoppingCart size={24} />
+                  {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                 </Button>
               )}
 
-              <div className="grid grid-cols-2 gap-4 pt-8 border-t border-gray-100">
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="p-2 bg-green-50 rounded-lg text-green-600">
-                    <Truck size={20} />
-                  </div>
-                  <span className="text-sm font-medium">Express Shipping</span>
-                </div>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                    <ShieldCheck size={20} />
-                  </div>
-                  <span className="text-sm font-medium">Original Product</span>
-                </div>
-              </div>
+  
             </div>
           </div>
         </div>

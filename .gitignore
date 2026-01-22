@@ -23,6 +23,8 @@ npm-debug.log*
 # This is crucial for security!
 /server/.env
 /server/.env.*
+!.env.example
+!/server/.env.example
 .env
 
 # Crash dumps

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/useCart";
+import { Link } from "react-router-dom";
 
 const Cart = () => {
   const { cartItems, cart } = useSelector((state: any) => state.cart);
@@ -114,9 +115,9 @@ const Cart = () => {
               <span>${cart?.totalPrice}</span>
             </div>
 
-            <Button className="w-full bg-pink-600 hover:bg-pink-700 h-12 text-lg font-bold mt-4 shadow-lg shadow-pink-100">
+            <Link to={'/add-order'} className="w-fit bg-pink-600 text-white px-4 py-1.5 rounded-md flex items-center justify-center mx-auto hover:bg-pink-700 h-12 text-lg font-bold mt-4 shadow-lg shadow-pink-100">
               Proceed to Checkout
-            </Button>
+            </Link>
           </div>
         </div>
       </div>

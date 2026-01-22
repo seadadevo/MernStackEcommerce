@@ -16,6 +16,8 @@ import ProtectedRoute from './ProtectedRoute'
 import SingleProduct from '@/pages/Products/SingleProduct'
 import { AddProduct } from '@/pages/dashboard/AddProduct'
 import ProductsDash from '@/pages/dashboard/ProductsDash'
+import OrdersLayout from '@/layouts/OrdersLayout'
+import Checkout from '@/pages/orders/Checkout'
 
 const AppRoutes = () => {
   return (
@@ -28,6 +30,9 @@ const AppRoutes = () => {
             <Route path='/products' element={<Products/>}/>
             <Route path='/cart' element={<Cart/>}/>
             <Route path='/product/:productId' element={<SingleProduct/>}/>
+        </Route>
+        <Route element={<OrdersLayout/>}>
+            <Route path='/add-order' element={<Checkout/>}/>
         </Route>
         <Route element={<AuthLayout/>}>
             <Route path='/sign-up' element={<SignUp/>}/>

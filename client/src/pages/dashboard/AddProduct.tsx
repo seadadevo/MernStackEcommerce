@@ -21,6 +21,7 @@ export const AddProduct = () => {
     productPrice: "",
     category: "",
     brand: "",
+    stock: "",
   });
 
 
@@ -60,6 +61,7 @@ export const AddProduct = () => {
       formData.append("productPrice", product.productPrice);
       formData.append("category", product.category);
       formData.append("brand", product.brand);
+      formData.append("stock", product.stock);
 
       
       selectedImages.forEach((file) => {

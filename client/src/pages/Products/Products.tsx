@@ -29,7 +29,7 @@ const Products = () => {
   
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      getAllProducts(currentPage, 1, sort);
+      getAllProducts(currentPage, 4, sort);
     }, 500); 
     return () => clearTimeout(delayDebounceFn);
   }, [currentPage, searchKeyword, selectedCategory, selectedBrand, sort, priceRange[0], priceRange[1]]);
@@ -82,7 +82,7 @@ const Products = () => {
         <div className="ml-auto mt-8">
           <Pagination 
           totalItems ={productsCount}
-          itemsPerPage={1}
+          itemsPerPage={4}
           currentPage={currentPage}
           onPageChange={(page: number) => setCurrentPage(page)}
           />

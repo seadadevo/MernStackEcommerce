@@ -1,197 +1,145 @@
 import { Product } from "../models/productModel.js";
 import APIFeatures from "../utils/apiFeatures.js";
 import { uploadStream } from "../utils/cloudinaryHelper.js";
+import cloudinary from "../config/cloundinary.js";
+import AppError from "../utils/appError.js";
+import { catchAsync } from "../utils/catchAsync.js";
 
-export const addProduct = async (req , res ) => {
-    try {
-        const { productName, productDesc, productPrice, category, brand, stock } = req.body;
-        const userId = req.id;
-        const files = req.files;
+export const addProduct = catchAsync(async (req, res, next) => {
+  const { productName, productDesc, productPrice, category, brand, stock } = req.body;
+  const userId = req.id;
+  const files = req.files;
 
+  const uploadPromises = files.map(file => uploadStream(file.buffer, "mern_products"));
+  const uploadResults = await Promise.all(uploadPromises);
 
-        const uploadPromises = files.map(file => uploadStream(file.buffer, "mern_products"));
-        const uploadResults = await Promise.all(uploadPromises);
+  const productImgData = uploadResults.map(result => ({
+    url: result.secure_url,
+    public_id: result.public_id
+  }));
 
-        const productImgData = uploadResults.map(result => ({
-            url: result.secure_url,
-            public_id: result.public_id
-        }));
-        const existingProduct = await Product.findOne({ productName });
-        if (existingProduct) {
-        return res.status(400).json({ 
-            success: false,
-            message: `Product with name "${productName}" already exists`
-        });
-        }
-       
-        const newProduct = await Product.create({
-            userId, 
-            productName,
-            productDesc,
-            productPrice,
-            category,
-            brand,
-            stock: stock || 0,
-            productImag: productImgData
-        });
-    
-        return res.status(200).json({
-            success: true,
-            message: "product added Successfully",
-            product: newProduct
-        })
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
-}
-// /products?keyword=iphone&category=electronics&price[gt]=1000
-export const getAllProducts = async (req, res) => {
-    try {
-        const apiFeatures = new APIFeatures(Product.find(), req.query)
-            .search()
-            .filter()
-            .execute()
-            .sort()
-            .limitFields();
+  const existingProduct = await Product.findOne({ productName });
+  if (existingProduct) {
+    return next(new AppError(`Product with name "${productName}" already exists`, 400));
+  }
 
-        const totalProductsCount = await Product.countDocuments(apiFeatures.filters);
+  const newProduct = await Product.create({
+    userId,
+    productName,
+    productDesc,
+    productPrice,
+    category,
+    brand,
+    stock: stock || 0,
+    productImag: productImgData
+  });
 
-        apiFeatures.paginate();
-        const products = await apiFeatures.query;
+  return res.status(201).json({
+    success: true,
+    message: "Product added successfully",
+    product: newProduct
+  });
+});
 
-        return res.status(200).json({
-            success: true,
-            totalProductsCount,
-            results: products.length,
-            products
-        });
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-};
+export const getAllProducts = catchAsync(async (req, res, next) => {
+  const apiFeatures = new APIFeatures(Product.find(), req.query)
+    .search()
+    .filter()
+    .execute()
+    .sort()
+    .limitFields();
 
-export const deleteProduct = async(req, res) => {
-    try {
-        const { productId } = req.params;
-        const product = await Product.findById(productId);
-        if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found" });
-        }
+  const totalProductsCount = await Product.countDocuments(apiFeatures.filters);
 
-        if(product.productImag && product.productImag.length > 0){
-            const deletePromises = product.productImag.map((img) => 
-                cloudinary.uploader.destroy(img.public_id)
-            );
-            await Promise.all(deletePromises);
-        }
+  apiFeatures.paginate();
+  const products = await apiFeatures.query;
 
-        await Product.findByIdAndDelete(productId);
-        return  res.status(200).json({
-            success: true,
-            message: "Product and its images deleted successfully"
-        });
-    } catch (error) {
-        
-        if(error.name === 'CastError') {
-            return res.status(400).json({
-                success: false,
-                message: `Resource not found, Invalid: ${error.path}`
-            });
-        }
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-}
+  return res.status(200).json({
+    success: true,
+    totalProductsCount,
+    results: products.length,
+    products
+  });
+});
 
-export const updateProduct = async (req, res) => {
-    try {
-        const { productId } = req.params;
-        const { productName, productDesc, productPrice, category, brand, stock } = req.body;
-        const files = req.files;
-        const product = await Product.findById(productId);
-        if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found" });
-        }
-        if(files && files.length > 0) {
-            const deletePromises = product.productImag.map((img) => 
-                cloudinary.uploader.destroy(img.public_id)
-            );
-            await Promise.all(deletePromises); 
-            
-            const uploadPromises = files.map(file => uploadStream(file.buffer, "mern_products"));
-            const uploadResults = await Promise.all(uploadPromises);
+export const deleteProduct = catchAsync(async (req, res, next) => {
+  const { productId } = req.params;
+  const product = await Product.findById(productId);
 
-            const productImgData = uploadResults.map(result => ({
-                url: result.secure_url,
-                public_id: result.public_id
-            }));
-            product.productImag = productImgData;
-        }
+  if (!product) {
+    return next(new AppError("Product not found", 404));
+  }
 
-        if (productName) product.productName = productName;
-        if (productDesc) product.productDesc = productDesc;
-        if (productPrice) product.productPrice = productPrice;
-        if (category) product.category = category;
-        if (brand) product.brand = brand;
-        if (req.body.stock !== undefined) product.stock = req.body.stock;
-        await product.save()
+  // Delete images from cloudinary
+  if (product.productImag && product.productImag.length > 0) {
+    const deletePromises = product.productImag.map((img) =>
+      cloudinary.uploader.destroy(img.public_id)
+    );
+    await Promise.all(deletePromises);
+  }
 
-        return res.status(200).json({
-            success: true,
-            message: "Product has been updated successfully",
-            product
-        });
-    } catch (error) {
-        if(error.name === 'CastError') {
-            return res.status(400).json({
-                success: false,
-                message: `Resource not found, Invalid: ${error.path}`
-        });
-    }
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-}
+  await Product.findByIdAndDelete(productId);
 
+  return res.status(200).json({
+    success: true,
+    message: "Product and its images deleted successfully"
+  });
+});
 
-export const getProductById = async(req, res) => {
-    try {
-        const {productId} = req.params;
-        const product = await Product.findById(productId).populate("userId", "firstName lastName");
-        if(!product) {
-            return res.status(404).json({
-                success: false,
-                message: "Product deos not exist",
-            });
-        } 
+export const updateProduct = catchAsync(async (req, res, next) => {
+  const { productId } = req.params;
+  const { productName, productDesc, productPrice, category, brand } = req.body;
+  const files = req.files;
 
-        return res.status(200).json({
-            success: true,
-            message: "Product has returned successfully",
-            product
-        });
-    } catch (error) {
-        if (error.name === 'CastError') {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid Product ID format"
-            });
-        }
+  const product = await Product.findById(productId);
+  if (!product) {
+    return next(new AppError("Product not found", 404));
+  }
 
-         return res.status(500).json({
-            success: false,
-            message: error.message
-        });
-    }
-}
+  // If new images are uploaded, delete old ones and upload new
+  if (files && files.length > 0) {
+    const deletePromises = product.productImag.map((img) =>
+      cloudinary.uploader.destroy(img.public_id)
+    );
+    await Promise.all(deletePromises);
 
+    const uploadPromises = files.map(file => uploadStream(file.buffer, "mern_products"));
+    const uploadResults = await Promise.all(uploadPromises);
+
+    const productImgData = uploadResults.map(result => ({
+      url: result.secure_url,
+      public_id: result.public_id
+    }));
+    product.productImag = productImgData;
+  }
+
+  if (productName) product.productName = productName;
+  if (productDesc) product.productDesc = productDesc;
+  if (productPrice) product.productPrice = productPrice;
+  if (category) product.category = category;
+  if (brand) product.brand = brand;
+  if (req.body.stock !== undefined) product.stock = req.body.stock;
+
+  await product.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Product has been updated successfully",
+    product
+  });
+});
+
+export const getProductById = catchAsync(async (req, res, next) => {
+  const { productId } = req.params;
+  const product = await Product.findById(productId).populate("userId", "firstName lastName");
+
+  if (!product) {
+    return next(new AppError("Product does not exist", 404));
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Product has returned successfully",
+    product
+  });
+});

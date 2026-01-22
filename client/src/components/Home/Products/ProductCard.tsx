@@ -20,9 +20,8 @@ const ProductCard = ({ product, loading }: {product?: any , loading: boolean}) =
 
   const itemInCart = cartItems?.find((item: any) => {
     const cartProductId = item?.productId?._id || item?.productId;
-    return cartProductId === product._id;
+    return cartProductId === product._id ;
   });
-
   const mainImage = product.productImag[0]?.url || "./heroImage.avif";
 
   return (
@@ -66,17 +65,17 @@ const ProductCard = ({ product, loading }: {product?: any , loading: boolean}) =
           {!itemInCart ? (
             <Button
               size="sm"
-              disabled={cartLoading}
+              disabled={cartLoading || product.stock < 1}
               className="bg-gray-900 hover:bg-pink-600 text-white rounded-lg px-3 flex gap-2 transition-colors"
               onClick={() => addToCart(product._id)}
             >
               <ShoppingCart size={16} />
-              <span className="hidden sm:inline">Add</span>
+              <span className="hidden sm:inline">{product.stock < 1 ? "Out of Stock" : "Add"}</span>
             </Button>
           ) : (
             <div className="flex items-center justify-center gap-2">
               <Button 
-                disabled={cartLoading}
+                disabled={cartLoading || itemInCart.quantity >= product.stock}
                 onClick={() => updateQty(product._id, "increase")}
                 className="h-8 w-8 p-0 bg-gray-900 hover:bg-pink-600 text-white"
               >

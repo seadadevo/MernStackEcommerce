@@ -34,7 +34,7 @@ export const useProduct = () => {
         params.append("productPrice[lte]", priceRange[1].toString());
       }
       params.append("page", page.toString());
-      params.append("limit", "1");
+      params.append("limit", limit.toString());
 
       const res = await api.get(`/product/all?${params.toString()}`);
       if (res.data.success) {

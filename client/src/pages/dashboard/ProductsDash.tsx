@@ -14,12 +14,12 @@ import { Search, Plus, Edit, Trash2, ExternalLink } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { setSearchKeyword } from "@/redux/productSlice";
+import { setSearchKeyword, resetFilters } from "@/redux/productSlice";
 import Pagination from "@/components/Home/Products/Pagination";
 
 const ProductsDash = () => {
   const dispatch = useDispatch();
-  const { products, searchKeyword, productsCount, selectedCategory, selectedBrand, priceRange } = useSelector((state: any) => state.products);
+  const { products, searchKeyword, productsCount } = useSelector((state: any) => state.products);
   
   const [localSearch, setLocalSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,12 +27,17 @@ const ProductsDash = () => {
 
   const { getAllProducts, loading } = useProduct();
 
+  // Reset all filters when dashboard loads to show all products
+  useEffect(() => {
+    dispatch(resetFilters());
+  }, [dispatch]);
+
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      getAllProducts(currentPage, 10, currentSort);
+      getAllProducts(currentPage, 4, currentSort);
     }, 500);
     return () => clearTimeout(delayDebounceFn);
-  }, [currentPage, searchKeyword, selectedCategory, selectedBrand, currentSort, priceRange, getAllProducts]);
+  }, [currentPage, searchKeyword, currentSort]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -152,7 +157,7 @@ const ProductsDash = () => {
 
       <Pagination
       totalItems= {productsCount}
-    itemsPerPage= {1}
+    itemsPerPage= {4}
     currentPage={currentPage}
     onPageChange={(page: number) => setCurrentPage(page)}
       />
